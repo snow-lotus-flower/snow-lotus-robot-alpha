@@ -70,22 +70,22 @@ void Error_Handler(void);
 #define CS_GPIO_Port GPIOA
 #define LED_2_Pin GPIO_PIN_6
 #define LED_2_GPIO_Port GPIOA
-#define M1D0_Pin GPIO_PIN_0
-#define M1D0_GPIO_Port GPIOD
-#define M1D1_Pin GPIO_PIN_1
-#define M1D1_GPIO_Port GPIOD
-#define M2D0_Pin GPIO_PIN_2
-#define M2D0_GPIO_Port GPIOD
-#define M2D1_Pin GPIO_PIN_3
-#define M2D1_GPIO_Port GPIOD
-#define M3D0_Pin GPIO_PIN_4
-#define M3D0_GPIO_Port GPIOD
-#define M3D1_Pin GPIO_PIN_5
-#define M3D1_GPIO_Port GPIOD
-#define M4D0_Pin GPIO_PIN_6
-#define M4D0_GPIO_Port GPIOD
-#define M4D1_Pin GPIO_PIN_7
-#define M4D1_GPIO_Port GPIOD
+#define FLD0_Pin GPIO_PIN_0
+#define FLD0_GPIO_Port GPIOD
+#define FLD1_Pin GPIO_PIN_1
+#define FLD1_GPIO_Port GPIOD
+#define FRD0_Pin GPIO_PIN_2
+#define FRD0_GPIO_Port GPIOD
+#define FRD1_Pin GPIO_PIN_3
+#define FRD1_GPIO_Port GPIOD
+#define RLD0_Pin GPIO_PIN_4
+#define RLD0_GPIO_Port GPIOD
+#define RLD1_Pin GPIO_PIN_5
+#define RLD1_GPIO_Port GPIOD
+#define RRD0_Pin GPIO_PIN_6
+#define RRD0_GPIO_Port GPIOD
+#define RRD1_Pin GPIO_PIN_7
+#define RRD1_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

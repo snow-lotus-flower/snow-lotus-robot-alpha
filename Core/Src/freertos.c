@@ -55,27 +55,6 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for ServoTask */
-osThreadId_t ServoTaskHandle;
-const osThreadAttr_t ServoTask_attributes = {
-  .name = "ServoTask",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for DisplayTask */
-osThreadId_t DisplayTaskHandle;
-const osThreadAttr_t DisplayTask_attributes = {
-  .name = "DisplayTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for ChangeSpeedTask */
-osThreadId_t ChangeSpeedTaskHandle;
-const osThreadAttr_t ChangeSpeedTask_attributes = {
-  .name = "ChangeSpeedTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
 /* Definitions for EncoderTimer */
 osTimerId_t EncoderTimerHandle;
 const osTimerAttr_t EncoderTimer_attributes = {
@@ -93,9 +72,6 @@ const osTimerAttr_t PIDTimer_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void StartServoTask(void *argument);
-void StartDisplayTask(void *argument);
-void StartChangeSpeedTask(void *argument);
 void EncoderTimerCallback(void *argument);
 void PIDTimerCallback(void *argument);
 
@@ -138,15 +114,6 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of ServoTask */
-  ServoTaskHandle = osThreadNew(StartServoTask, NULL, &ServoTask_attributes);
-
-  /* creation of DisplayTask */
-  DisplayTaskHandle = osThreadNew(StartDisplayTask, NULL, &DisplayTask_attributes);
-
-  /* creation of ChangeSpeedTask */
-  ChangeSpeedTaskHandle = osThreadNew(StartChangeSpeedTask, NULL, &ChangeSpeedTask_attributes);
-
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -173,60 +140,6 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
-}
-
-/* USER CODE BEGIN Header_StartServoTask */
-/**
-* @brief Function implementing the ServoTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartServoTask */
-void StartServoTask(void *argument)
-{
-  /* USER CODE BEGIN StartServoTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartServoTask */
-}
-
-/* USER CODE BEGIN Header_StartDisplayTask */
-/**
-* @brief Function implementing the DisplayTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartDisplayTask */
-void StartDisplayTask(void *argument)
-{
-  /* USER CODE BEGIN StartDisplayTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartDisplayTask */
-}
-
-/* USER CODE BEGIN Header_StartChangeSpeedTask */
-/**
-* @brief Function implementing the ChangeSpeedTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartChangeSpeedTask */
-__weak void StartChangeSpeedTask(void *argument)
-{
-  /* USER CODE BEGIN StartChangeSpeedTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartChangeSpeedTask */
 }
 
 /* EncoderTimerCallback function */
