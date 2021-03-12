@@ -55,16 +55,6 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for EncoderTimer */
-osTimerId_t EncoderTimerHandle;
-const osTimerAttr_t EncoderTimer_attributes = {
-  .name = "EncoderTimer"
-};
-/* Definitions for PIDTimer */
-osTimerId_t PIDTimerHandle;
-const osTimerAttr_t PIDTimer_attributes = {
-  .name = "PIDTimer"
-};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -72,8 +62,6 @@ const osTimerAttr_t PIDTimer_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void EncoderTimerCallback(void *argument);
-void PIDTimerCallback(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -94,13 +82,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
-
-  /* Create the timer(s) */
-  /* creation of EncoderTimer */
-  EncoderTimerHandle = osTimerNew(EncoderTimerCallback, osTimerPeriodic, (void*) &hawhl, &EncoderTimer_attributes);
-
-  /* creation of PIDTimer */
-  PIDTimerHandle = osTimerNew(PIDTimerCallback, osTimerPeriodic, (void*) &hawhl, &PIDTimer_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -131,7 +112,7 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+__weak void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
@@ -140,22 +121,6 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
-}
-
-/* EncoderTimerCallback function */
-__weak void EncoderTimerCallback(void *argument)
-{
-  /* USER CODE BEGIN EncoderTimerCallback */
-
-  /* USER CODE END EncoderTimerCallback */
-}
-
-/* PIDTimerCallback function */
-__weak void PIDTimerCallback(void *argument)
-{
-  /* USER CODE BEGIN PIDTimerCallback */
-
-  /* USER CODE END PIDTimerCallback */
 }
 
 /* Private application code --------------------------------------------------*/

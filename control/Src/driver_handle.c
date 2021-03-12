@@ -67,12 +67,5 @@ AllWheels_HandleTypeDef hawhl = {
     .length_separation = 21.0,
     .width_separation = 25.0,
     .perimeter = 20.42,
-};
-
-void driver_handle_init()
-{
-  hawhl.htim_enc = EncoderTimerHandle;
-  hawhl.htim_pid = PIDTimerHandle;
-  hawhl.tim_ticks_enc = 20;
-  hawhl.tim_ticks_pid = 50;
-}
+    .tim_ticks_enc = 20,
+    .tim_ticks_pid = 50};
