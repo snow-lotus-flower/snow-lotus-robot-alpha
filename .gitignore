@@ -1,0 +1,8 @@
+# Visual Studio Code
+
+.vscode
+
+# STM32CubeIDE
+
+/.settings
+/Debug
