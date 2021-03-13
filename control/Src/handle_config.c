@@ -1,4 +1,4 @@
-#include "driver_handle.h"
+#include "handle_config.h"
 
 #include "cmsis_os.h"
 #include "i2c.h"
@@ -37,19 +37,19 @@ Motor_HandleTypeDef hmtrFL = {
     .dir2_port = FLD1_GPIO_Port,
     .dir2_pin = FLD1_Pin};
 Motor_HandleTypeDef hmtrFR = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 8},
+    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 9},
     .dir1_port = FRD0_GPIO_Port,
     .dir1_pin = FRD0_Pin,
     .dir2_port = FRD1_GPIO_Port,
     .dir2_pin = FRD1_Pin};
 Motor_HandleTypeDef hmtrRL = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 8},
+    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 10},
     .dir1_port = RLD0_GPIO_Port,
     .dir1_pin = RLD0_Pin,
     .dir2_port = RLD1_GPIO_Port,
     .dir2_pin = RLD1_Pin};
 Motor_HandleTypeDef hmtrRR = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 8},
+    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 11},
     .dir1_port = RRD0_GPIO_Port,
     .dir1_pin = RRD0_Pin,
     .dir2_port = RRD1_GPIO_Port,
@@ -69,3 +69,15 @@ AllWheels_HandleTypeDef hawhl = {
     .perimeter = 20.42,
     .tim_ticks_enc = 20,
     .tim_ticks_pid = 50};
+
+void USART1_IRQHandler(void)
+{
+  gyro_IRQHandler(&hgyro);
+  HAL_UART_IRQHandler(&huart1);
+}
+
+void USART2_IRQHandler(void)
+{
+  scanner_IRQHandler(&hscan);
+  HAL_UART_IRQHandler(&huart2);
+}
