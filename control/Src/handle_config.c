@@ -10,7 +10,7 @@
 extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
-Gyro_HandleTypeDef hgyro = {.huart = &huart1};
+Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -2e-5};
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
     .device_address = PCA9865_I2C_DEFAULT_DEVICE_ADDRESS,
@@ -64,11 +64,15 @@ AllWheels_HandleTypeDef hawhl = {
         Wheel_HandleTypeDef){.henc = &hencRL, .hmtr = &hmtrRL, .hpid = &hpidRL},
     .RR = &(
         Wheel_HandleTypeDef){.henc = &hencRR, .hmtr = &hmtrRR, .hpid = &hpidRR},
+
+    .hgyro = &hgyro,
+    .hscan = &hscan,
     .length_separation = 21.0,
     .width_separation = 25.0,
     .perimeter = 20.42,
     .tim_ticks_enc = 20,
-    .tim_ticks_pid = 50};
+    .tim_ticks_pid = 50,
+    .tim_ticks_spd = 50};
 
 void USART1_IRQHandler(void)
 {
