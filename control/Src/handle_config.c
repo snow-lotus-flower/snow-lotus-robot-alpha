@@ -10,7 +10,7 @@
 extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
-Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -2e-5};
+Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -1.917e-5};
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
     .device_address = PCA9865_I2C_DEFAULT_DEVICE_ADDRESS,
@@ -23,7 +23,8 @@ PWM_HandleTypeDef hpwmFR = {.hpca = &hpca, .channel = 9};
 PWM_HandleTypeDef hpwmRL = {.hpca = &hpca, .channel = 10};
 PWM_HandleTypeDef hpwmRR = {.hpca = &hpca, .channel = 11};
 
-PID_HandleTypeDef hpidFL, hpidFR, hpidRL, hpidRR;
+PIDWheel_HandleTypeDef hpidFL, hpidFR, hpidRL, hpidRR;
+PIDYaw_HandleTypeDef hpid_yaw;
 
 Encoder_HandleTypeDef hencFL = {.htim = &htim1};
 Encoder_HandleTypeDef hencFR = {.htim = &htim2};
@@ -69,10 +70,12 @@ AllWheels_HandleTypeDef hawhl = {
     .hscan = &hscan,
     .length_separation = 21.0,
     .width_separation = 25.0,
-    .perimeter = 20.42,
+    .perimeter = 20.17,
     .tim_ticks_enc = 20,
-    .tim_ticks_pid = 50,
-    .tim_ticks_spd = 50};
+    .tim_ticks_pid_wheel = 50,
+    .tim_ticks_spd = 50,
+    .tim_ticks_pid_yaw = 50,
+    .hpid_yaw = &hpid_yaw};
 
 void USART1_IRQHandler(void)
 {
