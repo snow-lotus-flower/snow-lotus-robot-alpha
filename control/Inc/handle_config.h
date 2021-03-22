@@ -5,6 +5,7 @@
 #include "encoder.h"
 #include "gyroscope.h"
 #include "motor.h"
+#include "openmv.h"
 #include "pca9685.h"
 #include "pid.h"
 #include "pwm_driver.h"
@@ -16,5 +17,6 @@ extern Gyro_HandleTypeDef hgyro;
 extern Display_HandleTypeDef hdisp;
 extern PCA9685_HandleTypeDef hpca;
 extern AllWheels_HandleTypeDef hawhl;
+extern Openmv_HandleTypeDef hopmv;
 
 #endif  // !__DRIVER_HANDLE_H__

@@ -10,6 +10,7 @@
 extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
+Openmv_HandleTypeDef hopmv = {.huart = &huart3};
 Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -1.917e-5};
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
@@ -87,4 +88,10 @@ void USART2_IRQHandler(void)
 {
   scanner_IRQHandler(&hscan);
   HAL_UART_IRQHandler(&huart2);
+}
+
+void USART3_IRQHandler(void)
+{
+  openmv_IRQHandler(&hopmv);
+  HAL_UART_IRQHandler(&huart3);
 }
