@@ -24,6 +24,11 @@ PWM_HandleTypeDef hpwmFR = {.hpca = &hpca, .channel = 9};
 PWM_HandleTypeDef hpwmRL = {.hpca = &hpca, .channel = 10};
 PWM_HandleTypeDef hpwmRR = {.hpca = &hpca, .channel = 11};
 
+PWM_HandleTypeDef hpwm_waist = {.hpca = &hpca, .channel = 0},
+                  hpwm_shoulder = {.hpca = &hpca, .channel = 1},
+                  hpwm_elbow = {.hpca = &hpca, .channel = 2},
+                  hpwm_hand = {.hpca = &hpca, .channel = 3};
+
 PIDWheel_HandleTypeDef hpidFL, hpidFR, hpidRL, hpidRR;
 PIDYaw_HandleTypeDef hpid_yaw;
 
@@ -32,43 +37,55 @@ Encoder_HandleTypeDef hencFR = {.htim = &htim2};
 Encoder_HandleTypeDef hencRL = {.htim = &htim3};
 Encoder_HandleTypeDef hencRR = {.htim = &htim4};
 
-Motor_HandleTypeDef hmtrFL = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 8},
-    .dir1_port = FLD0_GPIO_Port,
-    .dir1_pin = FLD0_Pin,
-    .dir2_port = FLD1_GPIO_Port,
-    .dir2_pin = FLD1_Pin};
-Motor_HandleTypeDef hmtrFR = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 9},
-    .dir1_port = FRD0_GPIO_Port,
-    .dir1_pin = FRD0_Pin,
-    .dir2_port = FRD1_GPIO_Port,
-    .dir2_pin = FRD1_Pin};
-Motor_HandleTypeDef hmtrRL = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 10},
-    .dir1_port = RLD0_GPIO_Port,
-    .dir1_pin = RLD0_Pin,
-    .dir2_port = RLD1_GPIO_Port,
-    .dir2_pin = RLD1_Pin};
-Motor_HandleTypeDef hmtrRR = {
-    .hpwm = &(PWM_HandleTypeDef){.hpca = &hpca, .channel = 11},
-    .dir1_port = RRD0_GPIO_Port,
-    .dir1_pin = RRD0_Pin,
-    .dir2_port = RRD1_GPIO_Port,
-    .dir2_pin = RRD1_Pin};
+Motor_HandleTypeDef hmtrFL = {.hpwm = &hpwmFL,
+                              .dir1_port = FLD0_GPIO_Port,
+                              .dir1_pin = FLD0_Pin,
+                              .dir2_port = FLD1_GPIO_Port,
+                              .dir2_pin = FLD1_Pin};
+Motor_HandleTypeDef hmtrFR = {.hpwm = &hpwmFR,
+                              .dir1_port = FRD0_GPIO_Port,
+                              .dir1_pin = FRD0_Pin,
+                              .dir2_port = FRD1_GPIO_Port,
+                              .dir2_pin = FRD1_Pin};
+Motor_HandleTypeDef hmtrRL = {.hpwm = &hpwmRL,
+                              .dir1_port = RLD0_GPIO_Port,
+                              .dir1_pin = RLD0_Pin,
+                              .dir2_port = RLD1_GPIO_Port,
+                              .dir2_pin = RLD1_Pin};
+Motor_HandleTypeDef hmtrRR = {.hpwm = &hpwmRR,
+                              .dir1_port = RRD0_GPIO_Port,
+                              .dir1_pin = RRD0_Pin,
+                              .dir2_port = RRD1_GPIO_Port,
+                              .dir2_pin = RRD1_Pin};
+
+Servo_HandleTypeDef hsrv_waist = {.hpwm = &hpwm_waist, .base = 205};
+Servo_HandleTypeDef hsrv_shoulder = {.hpwm = &hpwm_shoulder, .base = 300};
+Servo_HandleTypeDef hsrv_elbow = {.hpwm = &hpwm_elbow, .base = 260};
+Servo_HandleTypeDef hsrv_hand = {.hpwm = &hpwm_hand, .base = 275};
+
+Wheel_HandleTypeDef hwhlFL = {
+    .henc = &hencFL, .hmtr = &hmtrFL, .hpid = &hpidFL};
+Wheel_HandleTypeDef hwhlFR = {
+    .henc = &hencFR, .hmtr = &hmtrFR, .hpid = &hpidFR};
+Wheel_HandleTypeDef hwhlRL = {
+    .henc = &hencRL, .hmtr = &hmtrRL, .hpid = &hpidRL};
+Wheel_HandleTypeDef hwhlRR = {
+    .henc = &hencRR, .hmtr = &hmtrRR, .hpid = &hpidRR};
 
 AllWheels_HandleTypeDef hawhl = {
-    .FL = &(
-        Wheel_HandleTypeDef){.henc = &hencFL, .hmtr = &hmtrFL, .hpid = &hpidFL},
-    .FR = &(
-        Wheel_HandleTypeDef){.henc = &hencFR, .hmtr = &hmtrFR, .hpid = &hpidFR},
-    .RL = &(
-        Wheel_HandleTypeDef){.henc = &hencRL, .hmtr = &hmtrRL, .hpid = &hpidRL},
-    .RR = &(
-        Wheel_HandleTypeDef){.henc = &hencRR, .hmtr = &hmtrRR, .hpid = &hpidRR},
+    .FL = &hwhlFL,
+    .FR = &hwhlFR,
+    .RL = &hwhlRL,
+    .RR = &hwhlRR,
+
+    .hsrv_shoulder = &hsrv_shoulder,
+    .hsrv_waist = &hsrv_waist,
+    .hsrv_elbow = &hsrv_elbow,
+    .hsrv_hand = &hsrv_hand,
 
     .hgyro = &hgyro,
     .hscan = &hscan,
+    .hopmv = &hopmv,
     .length_separation = 21.0,
     .width_separation = 25.0,
     .perimeter = 20.17,
@@ -76,7 +93,9 @@ AllWheels_HandleTypeDef hawhl = {
     .tim_ticks_pid_wheel = 50,
     .tim_ticks_spd = 50,
     .tim_ticks_pid_yaw = 50,
-    .hpid_yaw = &hpid_yaw};
+    .tim_ticks_pwm = 50,
+    .hpid_yaw = &hpid_yaw,
+};
 
 void USART1_IRQHandler(void)
 {
