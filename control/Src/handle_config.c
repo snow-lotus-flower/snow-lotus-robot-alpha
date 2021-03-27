@@ -11,7 +11,7 @@ extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
 Openmv_HandleTypeDef hopmv = {.huart = &huart3};
-Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -1.917e-5};
+Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -1.68e-5};
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
     .device_address = PCA9865_I2C_DEFAULT_DEVICE_ADDRESS,
@@ -58,10 +58,11 @@ Motor_HandleTypeDef hmtrRR = {.hpwm = &hpwmRR,
                               .dir2_port = RRD1_GPIO_Port,
                               .dir2_pin = RRD1_Pin};
 
-Servo_HandleTypeDef hsrv_waist = {.hpwm = &hpwm_waist, .base = 205};
-Servo_HandleTypeDef hsrv_shoulder = {.hpwm = &hpwm_shoulder, .base = 300};
-Servo_HandleTypeDef hsrv_elbow = {.hpwm = &hpwm_elbow, .base = 260};
-Servo_HandleTypeDef hsrv_hand = {.hpwm = &hpwm_hand, .base = 275};
+Servo_HandleTypeDef hsrv_waist = {.hpwm = &hpwm_waist, .base = 200, .pos = 1};
+Servo_HandleTypeDef hsrv_shoulder = {
+    .hpwm = &hpwm_shoulder, .base = 300, .pos = 1};
+Servo_HandleTypeDef hsrv_elbow = {.hpwm = &hpwm_elbow, .base = 260, .pos = 1};
+Servo_HandleTypeDef hsrv_hand = {.hpwm = &hpwm_hand, .base = 275, .pos = 1};
 
 Wheel_HandleTypeDef hwhlFL = {
     .henc = &hencFL, .hmtr = &hmtrFL, .hpid = &hpidFL};

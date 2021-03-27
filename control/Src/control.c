@@ -17,6 +17,7 @@ void move_right_to_mid(AllWheels_HandleTypeDef *hawhl);
 void debug_encoder(AllWheels_HandleTypeDef *hawhl);
 void grab_up_ingredient_bottom(AllWheels_HandleTypeDef *hawhl);
 void put_rough_top(AllWheels_HandleTypeDef *hawhl);
+void grab_rough_top(AllWheels_HandleTypeDef *hawhl);
 
 void stop()
 {
@@ -40,7 +41,7 @@ void test_func(int i)
       break;
     case 3:
       hawhl.hsrv_shoulder->pos = 0;
-      hawhl.hsrv_elbow->pos = 120;
+      hawhl.hsrv_elbow->pos = 90;
       hawhl.hsrv_hand->pos = -150;
       osDelay(1000);
       hawhl.hsrv_waist->pos = 0;
@@ -161,36 +162,109 @@ void StartDefaultTask(void *argument)
   }
 }
 
+void arm_reset(AllWheels_HandleTypeDef *hawhl)
+{
+  hawhl->hsrv_shoulder->pos = 75;
+  hawhl->hsrv_elbow->pos = 90;
+  osDelay(1000);
+}
+
+void arm_waist(AllWheels_HandleTypeDef *hawhl, int16_t pos)
+{
+  hawhl->hsrv_waist->pos = pos;
+  osDelay(2000);
+}
+
+void arm_shoulder_elbow(AllWheels_HandleTypeDef *hawhl, int16_t shoulder,
+                        int16_t elbow)
+{
+  hawhl->hsrv_shoulder->pos = shoulder;
+  hawhl->hsrv_elbow->pos = elbow;
+  osDelay(1000);
+}
+
 void grab_up_ingredient_bottom(AllWheels_HandleTypeDef *hawhl)
 {
   hawhl->hsrv_hand->pos = -150;
-  osDelay(1000);
-  hawhl->hsrv_shoulder->pos = 0;
-  hawhl->hsrv_elbow->pos = 120;
-  osDelay(1000);
+  arm_reset(hawhl);
   hawhl->hsrv_waist->pos = 0;
+  osDelay(2000);
+  hawhl->hsrv_shoulder->pos = 0;
   osDelay(1000);
   hawhl->hsrv_hand->pos = 0;
   osDelay(1000);
-  hawhl->hsrv_shoulder->pos = 70;
-  osDelay(1000);
+  arm_reset(hawhl);
 }
 
 void put_rough_top(AllWheels_HandleTypeDef *hawhl)
 {
-  hawhl->hsrv_shoulder->pos = 70;
-  hawhl->hsrv_elbow->pos = 120;
-  osDelay(1000);
-  hawhl->hsrv_waist->pos = 0;
-  osDelay(1000);
-  hawhl->hsrv_shoulder->pos = -48;
-  hawhl->hsrv_shoulder->pos = -90;
-  osDelay(1000);
+  arm_reset(hawhl);
+  arm_waist(hawhl, 0);
+  arm_shoulder_elbow(hawhl, -48, -90);
   hawhl->hsrv_hand->pos = -150;
   osDelay(1000);
-  hawhl->hsrv_shoulder->pos = 70;
-  hawhl->hsrv_elbow->pos = 120;
+  arm_reset(hawhl);
+}
+
+void grab_rough_top(AllWheels_HandleTypeDef *hawhl)
+{
+  hawhl->hsrv_hand->pos = -150;
+  arm_reset(hawhl);
+  hawhl->hsrv_waist->pos = 0;
+  osDelay(2000);
+  hawhl->hsrv_shoulder->pos = -50;
+  hawhl->hsrv_elbow->pos = -100;
   osDelay(1000);
+  hawhl->hsrv_hand->pos = 0;
+  osDelay(500);
+  arm_reset(hawhl);
+}
+
+void put_storge_bottom(AllWheels_HandleTypeDef *hawhl, int num)
+{
+  static int16_t waist_pos[3] = {183, 215, 245};
+  static int16_t shoulder_pos[3] = {20, 20, 0};
+  static int16_t elbow_pos[3] = {-30, -70, -50};
+  arm_reset(hawhl);
+  hawhl->hsrv_waist->pos = waist_pos[num];
+  osDelay(2000);
+  hawhl->hsrv_elbow->pos = elbow_pos[num];
+  hawhl->hsrv_shoulder->pos = shoulder_pos[num];
+  osDelay(1000);
+  hawhl->hsrv_hand->pos = -70;
+  osDelay(500);
+  arm_reset(hawhl);
+}
+
+void grab_storge_top(AllWheels_HandleTypeDef *hawhl, int num)
+{
+  static int16_t waist_pos[3] = {183, 215, 245};
+  static int16_t shoulder_pos[3] = {30, 40, 35};
+  static int16_t elbow_pos[3] = {20, 0, 15};
+
+  arm_reset(hawhl);
+  hawhl->hsrv_hand->pos = -100;
+  arm_waist(hawhl, waist_pos[num]);
+  arm_shoulder_elbow(hawhl, shoulder_pos[num], elbow_pos[num]);
+  hawhl->hsrv_hand->pos = 0;
+  osDelay(500);
+  arm_reset(hawhl);
+}
+
+void put_storge_top(AllWheels_HandleTypeDef *hawhl, int num)
+{
+  static int16_t waist_pos[3] = {183, 215, 245};
+  static int16_t shoulder_pos[3] = {40, 50, 40};
+  static int16_t elbow_pos[3] = {30, 30, 30};
+  arm_reset(hawhl);
+  hawhl->hsrv_waist->pos = waist_pos[num];
+  osDelay(2000);
+  hawhl->hsrv_elbow->pos = elbow_pos[num];
+  hawhl->hsrv_shoulder->pos = shoulder_pos[num];
+  osDelay(1000);
+  hawhl->hsrv_hand->pos = -70;
+  osDelay(500);
+  arm_reset(hawhl);
 }
 
 void move_to_edge(AllWheels_HandleTypeDef *hawhl, float speedx, float speedy)
@@ -305,28 +379,31 @@ void run_whole_map()
   int pos_main[3] = {1, 2, 0}, pos_up[3], pos_down[3];
 
   // 机械臂归位
-  hawhl.hsrv_shoulder->pos = 70;
-  hawhl.hsrv_elbow->pos = 120;
+  hawhl.hsrv_shoulder->pos = 80;
+  hawhl.hsrv_elbow->pos = 90;
   hawhl.hsrv_hand->pos = -150;
-  osDelay(500);
+  osDelay(1000);
   hawhl.hsrv_waist->pos = 0;
 
+  // test_func(1);
+  // test_func(0);
   // test_func(4);
-  move_to_edge(&hawhl, 10, 10);
-  all_wheels_move_xy_delta(&hawhl, 4, -2, 10);
-  put_rough_top(&hawhl);
-  all_wheels_move_xy_delta(&hawhl, -4, 2, 10);
-  test_func(0);
+  // move_to_edge(&hawhl, 10, 10);
+  // hawhl.hsrv_hand->pos = 0;
+  // all_wheels_move_xy_delta(&hawhl, 4.5, -0.5, 10);
+  // put_rough_top(&hawhl);
+  // all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
+  // test_func(0);
 
   // 去扫码
-  // scanner_start(&hscan);
+  scanner_start(&hscan);
   all_wheels_move_xy_delta(&hawhl, 50, 25, 40);
   move_to_edge(&hawhl, 10, 10);
   osDelay(500);
-  strcpy(hscan.result, "213+321");
-  // while (!hscan.new_data) {
-  //   osDelay(1000);
-  // }
+  // strcpy(hscan.result, "213+321");
+  while (!hscan.new_data) {
+    osDelay(1000);
+  }
   lcdSetCursorPosition(0, 0);
   lcdPrintStr((uint8_t *)"Task: ", 6);
   lcdPrintStr(hscan.result, 7);
@@ -340,6 +417,7 @@ void run_whole_map()
   openmv_start(&hopmv);
   hopmv.new_data = false;
   while (!hopmv.new_data) osDelay(1000);
+  // strcpy(hawhl.hopmv->result, "012+201");
   lcdSetCursorPosition(0, 1);
   lcdPrintStr((uint8_t *)"Color: ", 7);
   lcdPrintStr(hopmv.result, 7);
@@ -364,9 +442,9 @@ void run_whole_map()
   wait_until_turn_finished(&hgyro);
   all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
   move_to_edge(&hawhl, 10, 10);
-  osDelay(2000);
 
-  // test
+T1:
+  // 拿原料区上层
   for (int i = 0, cur_state = 2; i <= 3; ++i) {
     int nxt = i == 3 ? 2 : ingredient_order_up[i];
     switch (cur_state * 3 + nxt) {
@@ -389,15 +467,13 @@ void run_whole_map()
         move_right_to_mid(&hawhl);
         break;
     }
-    // test_func(2);
-    // test_func(1);
-    // test_func(0);
-    all_wheels_move_xy_delta(&hawhl, 3, 0, 10);
-    grab_up_ingredient_bottom(&hawhl);
-
-    all_wheels_move_xy_delta(&hawhl, -3, 0, 10);
+    if (i < 3) {
+      all_wheels_move_xy_delta(&hawhl, 4, -0.5, 10);
+      grab_up_ingredient_bottom(&hawhl);
+      put_storge_bottom(&hawhl, i);
+      all_wheels_move_xy_delta(&hawhl, -4, -0.5, 10);
+    }
     cur_state = nxt;
-    osDelay(2000);
   }
 
   // // test
@@ -422,9 +498,9 @@ void run_whole_map()
   // 去粗加工区
   all_wheels_move_xy_delta(&hawhl, 25, 50, 40);
   move_to_edge(&hawhl, 10, 10);
-  osDelay(2000);
 
-  // test
+T2:
+  // 放第一趟粗加工
   for (int i = 0, cur_state = 2; i <= 3; ++i) {
     int nxt = i == 3 ? 2 : order_up[i];
     switch (cur_state * 3 + nxt) {
@@ -447,8 +523,46 @@ void run_whole_map()
         move_right_to_mid(&hawhl);
         break;
     }
+    if (i < 3) {
+      all_wheels_move_xy_delta(&hawhl, 4.5, -0.5, 10);
+      grab_storge_top(&hawhl, i);
+      put_rough_top(&hawhl);
+      all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
+    }
     cur_state = nxt;
-    osDelay(2000);
+  }
+
+T3:
+  // 第一趟从粗加工拿起
+  for (int i = 0, cur_state = 2; i <= 3; ++i) {
+    int nxt = i == 3 ? 2 : order_up[i];
+    switch (cur_state * 3 + nxt) {
+      case 1:
+        move_left_to_mid(&hawhl);
+        break;
+      case 2:
+        move_left_to_right(&hawhl);
+        break;
+      case 3:
+        move_mid_to_left(&hawhl);
+        break;
+      case 5:
+        move_mid_to_right(&hawhl);
+        break;
+      case 6:
+        move_right_to_left(&hawhl);
+        break;
+      case 7:
+        move_right_to_mid(&hawhl);
+        break;
+    }
+    if (i < 3) {
+      all_wheels_move_xy_delta(&hawhl, 4.5, -0.5, 10);
+      grab_rough_top(&hawhl);
+      put_storge_top(&hawhl, i);
+      all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
+    }
+    cur_state = nxt;
   }
 
   // 左转
@@ -459,9 +573,9 @@ void run_whole_map()
   // 去半成品区
   all_wheels_move_xy_delta(&hawhl, 80, 55, 40);
   move_to_edge(&hawhl, 10, 10);
-  osDelay(2000);
 
-  // test
+T4:
+  // 放半成品区下层
   for (int i = 0, cur_state = 2; i <= 3; ++i) {
     int nxt = i == 3 ? 2 : order_up[i];
     switch (cur_state * 3 + nxt) {
@@ -484,8 +598,13 @@ void run_whole_map()
         move_right_to_mid(&hawhl);
         break;
     }
+    if (i < 3) {
+      all_wheels_move_xy_delta(&hawhl, -9, -0.5, 10);
+      grab_storge_top(&hawhl, i);
+      put_rough_top(&hawhl);
+      all_wheels_move_xy_delta(&hawhl, 9, 0.5, 10);
+    }
     cur_state = nxt;
-    osDelay(2000);
   }
 
   // 去原料区
@@ -500,7 +619,7 @@ void run_whole_map()
   all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
   move_to_edge(&hawhl, 10, 10);
 
-  // test
+  // 拿原料区下层
   for (int i = 0, cur_state = 2; i <= 3; ++i) {
     int nxt = i == 3 ? 2 : ingredient_order_down[i];
     switch (cur_state * 3 + nxt) {
