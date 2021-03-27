@@ -178,8 +178,9 @@ void arm_waist(AllWheels_HandleTypeDef *hawhl, int16_t pos)
 void arm_shoulder_elbow(AllWheels_HandleTypeDef *hawhl, int16_t shoulder,
                         int16_t elbow)
 {
-  hawhl->hsrv_shoulder->pos = shoulder;
   hawhl->hsrv_elbow->pos = elbow;
+  osDelay(100);
+  hawhl->hsrv_shoulder->pos = shoulder;
   osDelay(1000);
 }
 
@@ -189,7 +190,8 @@ void grab_up_ingredient_bottom(AllWheels_HandleTypeDef *hawhl)
   arm_reset(hawhl);
   hawhl->hsrv_waist->pos = 0;
   osDelay(2000);
-  hawhl->hsrv_shoulder->pos = 0;
+  hawhl->hsrv_shoulder->pos = 20;
+  hawhl->hsrv_elbow->pos = 90;
   osDelay(1000);
   hawhl->hsrv_hand->pos = 0;
   osDelay(1000);
@@ -213,7 +215,7 @@ void grab_rough_top(AllWheels_HandleTypeDef *hawhl)
   hawhl->hsrv_waist->pos = 0;
   osDelay(2000);
   hawhl->hsrv_shoulder->pos = -50;
-  hawhl->hsrv_elbow->pos = -100;
+  hawhl->hsrv_elbow->pos = -120;
   osDelay(1000);
   hawhl->hsrv_hand->pos = 0;
   osDelay(500);
@@ -239,8 +241,8 @@ void put_storge_bottom(AllWheels_HandleTypeDef *hawhl, int num)
 void grab_storge_top(AllWheels_HandleTypeDef *hawhl, int num)
 {
   static int16_t waist_pos[3] = {183, 215, 245};
-  static int16_t shoulder_pos[3] = {30, 40, 35};
-  static int16_t elbow_pos[3] = {20, 0, 15};
+  static int16_t shoulder_pos[3] = {30, 40, 25};
+  static int16_t elbow_pos[3] = {20, -10, 15};
 
   arm_reset(hawhl);
   hawhl->hsrv_hand->pos = -100;
@@ -335,18 +337,20 @@ void move_mid_to_left(AllWheels_HandleTypeDef *hawhl)
 
 void move_mid_to_right(AllWheels_HandleTypeDef *hawhl)
 {
-  all_wheels_move_xy_delta(hawhl, -5, -15, 40);
+  all_wheels_move_xy_delta(hawhl, -5, -17, 40);
   move_to_edge(hawhl, 10, 10);
 }
 
 void move_left_to_mid(AllWheels_HandleTypeDef *hawhl)
 {
-  all_wheels_move_xy_delta(hawhl, -5, -5, 40);
-  all_wheels_set_main_speed(hawhl, 0, -10);
-  while (HAL_GPIO_ReadPin(T1_GPIO_Port, T1_Pin) == GPIO_PIN_SET) osDelay(20);
-  all_wheels_set_main_speed(hawhl, 10, 0);
-  while (HAL_GPIO_ReadPin(T3_GPIO_Port, T3_Pin) == GPIO_PIN_SET) osDelay(20);
-  all_wheels_set_main_speed(hawhl, 0, 0);
+  move_left_to_right(hawhl);
+  move_right_to_mid(hawhl);
+  // all_wheels_move_xy_delta(hawhl, -5, -5, 40);
+  // all_wheels_set_main_speed(hawhl, 0, -10);
+  // while (HAL_GPIO_ReadPin(T1_GPIO_Port, T1_Pin) == GPIO_PIN_SET) osDelay(20);
+  // all_wheels_set_main_speed(hawhl, 10, 0);
+  // while (HAL_GPIO_ReadPin(T3_GPIO_Port, T3_Pin) == GPIO_PIN_SET) osDelay(20);
+  // all_wheels_set_main_speed(hawhl, 0, 0);
 }
 
 void move_right_to_mid(AllWheels_HandleTypeDef *hawhl)
@@ -374,17 +378,18 @@ void turn_left(Gyro_HandleTypeDef *hgyro, bool left)
 
 void run_whole_map()
 {
-  int ingredient_order_up[3], ingredient_order_down[3];
-  int order_up[3], order_down[3];
-  int pos_main[3] = {1, 2, 0}, pos_up[3], pos_down[3];
+  int ingredient_order_up[3] = {0}, ingredient_order_down[3] = {0};
+  int order_up[3] = {0}, order_down[3] = {0};
+  int pos_main[3] = {1, 2, 0}, pos_up[3] = {0}, pos_down[3] = {0};
 
   // 机械臂归位
   hawhl.hsrv_shoulder->pos = 80;
-  hawhl.hsrv_elbow->pos = 90;
+  hawhl.hsrv_elbow->pos = 100;
   hawhl.hsrv_hand->pos = -150;
   osDelay(1000);
   hawhl.hsrv_waist->pos = 0;
 
+  // goto T2;
   // test_func(1);
   // test_func(0);
   // test_func(4);
@@ -440,7 +445,7 @@ void run_whole_map()
   // 右转
   gyro_set_logic_zero_as(&hgyro, hgyro.logic_degree_zero_raw - 16384);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -3, -5, 40);
   move_to_edge(&hawhl, 10, 10);
 
 T1:
@@ -468,10 +473,10 @@ T1:
         break;
     }
     if (i < 3) {
-      all_wheels_move_xy_delta(&hawhl, 4, -0.5, 10);
+      all_wheels_move_xy_delta(&hawhl, 5.5, -0.5, 10);
       grab_up_ingredient_bottom(&hawhl);
       put_storge_bottom(&hawhl, i);
-      all_wheels_move_xy_delta(&hawhl, -4, -0.5, 10);
+      all_wheels_move_xy_delta(&hawhl, -5.5, -0.5, 10);
     }
     cur_state = nxt;
   }
@@ -493,7 +498,7 @@ T1:
   // 左转
   gyro_set_logic_zero_as(&hgyro, hgyro.logic_degree_zero_raw + 16384);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
   // 去粗加工区
   all_wheels_move_xy_delta(&hawhl, 25, 50, 40);
@@ -557,10 +562,10 @@ T3:
         break;
     }
     if (i < 3) {
-      all_wheels_move_xy_delta(&hawhl, 4.5, -0.5, 10);
+      all_wheels_move_xy_delta(&hawhl, 4.8, -0.5, 10);
       grab_rough_top(&hawhl);
       put_storge_top(&hawhl, i);
-      all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
+      all_wheels_move_xy_delta(&hawhl, -4.8, 0.5, 10);
     }
     cur_state = nxt;
   }
@@ -568,7 +573,7 @@ T3:
   // 左转
   gyro_set_logic_zero_as(&hgyro, hgyro.logic_degree_zero_raw + 16384);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
   // 去半成品区
   all_wheels_move_xy_delta(&hawhl, 80, 55, 40);
@@ -606,6 +611,7 @@ T4:
     }
     cur_state = nxt;
   }
+  goto T;
 
   // 去原料区
   all_wheels_move_xy_delta(&hawhl, -155, -40, 40);
@@ -616,7 +622,7 @@ T4:
   osDelay(300);
   turn_left(&hgyro, false);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
 
   // 拿原料区下层
@@ -650,7 +656,7 @@ T4:
   // 左转
   gyro_set_logic_zero_as(&hgyro, hgyro.logic_degree_zero_raw + 16384);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
   // 去粗加工区
   all_wheels_move_xy_delta(&hawhl, 25, 50, 40);
@@ -686,7 +692,7 @@ T4:
   // 左转
   gyro_set_logic_zero_as(&hgyro, hgyro.logic_degree_zero_raw + 16384);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
   // 去半成品区
   all_wheels_move_xy_delta(&hawhl, 80, 55, 40);
@@ -719,15 +725,16 @@ T4:
     cur_state = nxt;
     osDelay(2000);
   }
+T:
   // 走三格
-  all_wheels_move_xy_delta(&hawhl, -5, 80, 40);
+  all_wheels_move_xy_delta(&hawhl, -10, 80, 40);
   move_to_edge(&hawhl, 10, 10);
   // 右转掉头
   turn_left(&hgyro, false);
   osDelay(300);
   turn_left(&hgyro, false);
   wait_until_turn_finished(&hgyro);
-  all_wheels_move_xy_delta(&hawhl, -3, -3, 40);
+  all_wheels_move_xy_delta(&hawhl, -5, -5, 40);
   move_to_edge(&hawhl, 10, 10);
   // // 移到终点
   all_wheels_move_xy_delta(&hawhl, -20, -20, 40);
