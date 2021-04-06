@@ -73,7 +73,7 @@ void StartDefaultTask(void *argument)
 
   // gyro_start(&hgyro);
   pwm_init(&hpca);
-  display_init(&hdisp);
+  // display_init(&hdisp);
 
   PWM_HandleTypeDef hsrv0 = {.hpca = &hpca, .channel = 0},
                     hsrv1 = {.hpca = &hpca, .channel = 1},
@@ -86,6 +86,8 @@ void StartDefaultTask(void *argument)
   // pwm_set_off_time(&hsrv3, 275);
 
   // pwm_set_duty_cycle(&hsrv2, 205 + 102);
+
+  laser_start(hawhl.hlas_front);
 
   osDelay(2000);
   all_wheels_start_encoder(&hawhl);
@@ -399,6 +401,7 @@ void run_whole_map()
   // put_rough_top(&hawhl);
   // all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
   // test_func(0);
+  all_wheels_move_xy_delta(&hawhl, 700., 0, 20);
 
   // 去扫码
   scanner_start(&hscan);

@@ -4,6 +4,7 @@
 #include "code_scanner.h"
 #include "encoder.h"
 #include "gyroscope.h"
+#include "laser.h"
 #include "motor.h"
 #include "openmv.h"
 #include "pca9685.h"

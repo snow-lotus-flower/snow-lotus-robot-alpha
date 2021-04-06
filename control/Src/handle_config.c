@@ -3,21 +3,22 @@
 #include "cmsis_os.h"
 #include "i2c.h"
 #include "main.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 
 extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
+Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -2.4e-5};
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
 Openmv_HandleTypeDef hopmv = {.huart = &huart3};
-Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -2.4e-5};
+Laser_HandleTypeDef hlas_front = {.huart = &huart4};
+
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
     .device_address = PCA9865_I2C_DEFAULT_DEVICE_ADDRESS,
     .inverted = false};
-Display_HandleTypeDef hdisp = {
-    .hspi = &hspi1, .cs_port = CS_GPIO_Port, .cs_pin = CS_Pin};
+// Display_HandleTypeDef hdisp = {
+//     .hspi = &hspi1, .cs_port = CS_GPIO_Port, .cs_pin = CS_Pin};
 
 PWM_HandleTypeDef hpwmFL = {.hpca = &hpca, .channel = 8};
 PWM_HandleTypeDef hpwmFR = {.hpca = &hpca, .channel = 9};
@@ -87,6 +88,8 @@ AllWheels_HandleTypeDef hawhl = {
     .hgyro = &hgyro,
     .hscan = &hscan,
     .hopmv = &hopmv,
+    .hlas_front = &hlas_front,
+
     .length_separation = 21.0,
     .width_separation = 25.0,
     .perimeter = 20.17,
@@ -114,4 +117,10 @@ void USART3_IRQHandler(void)
 {
   openmv_IRQHandler(&hopmv);
   HAL_UART_IRQHandler(&huart3);
+}
+
+void UART4_IRQHandler(void)
+{
+  laser_IRQHandler(&hlas_front);
+  HAL_UART_IRQHandler(&huart4);
 }
