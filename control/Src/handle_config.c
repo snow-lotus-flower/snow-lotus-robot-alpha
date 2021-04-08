@@ -11,7 +11,8 @@ extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 Gyro_HandleTypeDef hgyro = {.huart = &huart1, .drifting_rate = -2.4e-5};
 Scanner_HandleTypeDef hscan = {.huart = &huart2};
 Openmv_HandleTypeDef hopmv = {.huart = &huart3};
-Laser_HandleTypeDef hlas_front = {.huart = &huart4};
+Laser_HandleTypeDef hlas_front = {.huart = &huart4},
+                    hlas_left = {.huart = &huart5};
 
 PCA9685_HandleTypeDef hpca = {
     .i2c_handle = &hi2c1,
@@ -89,6 +90,7 @@ AllWheels_HandleTypeDef hawhl = {
     .hscan = &hscan,
     .hopmv = &hopmv,
     .hlas_front = &hlas_front,
+    .hlas_left = &hlas_left,
 
     .length_separation = 21.0,
     .width_separation = 25.0,
@@ -123,4 +125,10 @@ void UART4_IRQHandler(void)
 {
   laser_IRQHandler(&hlas_front);
   HAL_UART_IRQHandler(&huart4);
+}
+
+void UART5_IRQHandler(void)
+{
+  laser_IRQHandler(&hlas_left);
+  HAL_UART_IRQHandler(&huart5);
 }

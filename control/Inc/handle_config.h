@@ -15,7 +15,7 @@
 
 extern Scanner_HandleTypeDef hscan;
 extern Gyro_HandleTypeDef hgyro;
-extern Display_HandleTypeDef hdisp;
+// extern Display_HandleTypeDef hdisp;
 extern PCA9685_HandleTypeDef hpca;
 extern AllWheels_HandleTypeDef hawhl;
 extern Openmv_HandleTypeDef hopmv;

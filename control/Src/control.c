@@ -75,11 +75,6 @@ void StartDefaultTask(void *argument)
   pwm_init(&hpca);
   // display_init(&hdisp);
 
-  PWM_HandleTypeDef hsrv0 = {.hpca = &hpca, .channel = 0},
-                    hsrv1 = {.hpca = &hpca, .channel = 1},
-                    hsrv2 = {.hpca = &hpca, .channel = 2},
-                    hsrv3 = {.hpca = &hpca, .channel = 3};
-
   // pwm_set_off_time(&hsrv0, 203);
   // pwm_set_off_time(&hsrv1, 300);
   // pwm_set_off_time(&hsrv2, 260);
@@ -88,8 +83,9 @@ void StartDefaultTask(void *argument)
   // pwm_set_duty_cycle(&hsrv2, 205 + 102);
 
   laser_start(hawhl.hlas_front);
+  laser_start(hawhl.hlas_left);
 
-  osDelay(2000);
+  osDelay(20000000);
   all_wheels_start_encoder(&hawhl);
   // gyro_start(&hgyro);
   // // for (;;) {
@@ -401,7 +397,7 @@ void run_whole_map()
   // put_rough_top(&hawhl);
   // all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);
   // test_func(0);
-  all_wheels_move_xy_delta(&hawhl, 700., 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, 700., 0, 20);
 
   // 去扫码
   scanner_start(&hscan);
@@ -426,9 +422,9 @@ void run_whole_map()
   hopmv.new_data = false;
   while (!hopmv.new_data) osDelay(1000);
   // strcpy(hawhl.hopmv->result, "012+201");
-  lcdSetCursorPosition(0, 1);
-  lcdPrintStr((uint8_t *)"Color: ", 7);
-  lcdPrintStr(hopmv.result, 7);
+  // lcdSetCursorPosition(0, 1);
+  // lcdPrintStr((uint8_t *)"Color: ", 7);
+  // lcdPrintStr(hopmv.result, 7);
 
   for (int i = 0; i < 3; ++i) {
     pos_up[i] = hawhl.hopmv->result[i] - '0';
@@ -479,7 +475,7 @@ T1:
       all_wheels_move_xy_delta(&hawhl, 5.5, -0.5, 10);
       grab_up_ingredient_bottom(&hawhl);
       put_storge_bottom(&hawhl, i);
-      all_wheels_move_xy_delta(&hawhl, -5.5, -0.5, 10);
+      all_wheels_move_xy_delta(&hawhl, -5.5, 0.5, 10);
     }
     cur_state = nxt;
   }
