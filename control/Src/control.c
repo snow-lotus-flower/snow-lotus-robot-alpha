@@ -82,10 +82,10 @@ void StartDefaultTask(void *argument)
 
   // pwm_set_duty_cycle(&hsrv2, 205 + 102);
 
-  laser_start(hawhl.hlas_front);
-  laser_start(hawhl.hlas_left);
+  laser_start(hawhl.hlas_x);
+  laser_start(hawhl.hlas_y);
 
-  osDelay(20000000);
+  //  osDelay(20000000);
   all_wheels_start_encoder(&hawhl);
   // gyro_start(&hgyro);
   // // for (;;) {
@@ -103,13 +103,27 @@ void StartDefaultTask(void *argument)
   // for (;;) {
   //   osDelay(100);
   // }
+  all_wheels_start_pid_wheel(&hawhl);
+  all_wheels_start_pid_yaw(&hawhl);
+  all_wheels_start_pid_laser(&hawhl);
   all_wheels_start_speed_composition(&hawhl);
   // for (;;) {
   //   osDelay(100);
   // }
-  run_whole_map();
-  all_wheels_set_main_speed(&hawhl, 20, 0);
-  osDelay(100000);
+  //  run_whole_map();
+  // all_wheels_set_main_speed(&hawhl, 20, 0);
+  // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
+  // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  laser_goto_x(&hawhl, 50);
+  osDelay(1000000);
   // osTimerStart(osTimerNew(GyroTimerCallback, osTimerPeriodic, &hawhl,
   //                         &(osTimerAttr_t){.name = "gyroTimer"}),
   //              50);
