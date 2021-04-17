@@ -183,7 +183,7 @@ AllWheels_HandleTypeDef hawhl = {
     .tim_ticks_pid_laser = 50,
     .hpid_yaw = &hpid_yaw,
     .hpid_las_x = &hpid_las_x,
-    .hpid_las_x = &hpid_las_y,
+    .hpid_las_y = &hpid_las_y,
 };
 
 void USART1_IRQHandler(void)

@@ -122,7 +122,9 @@ void StartDefaultTask(void *argument)
   // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
   // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
   // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
+  osDelay(2000);
   laser_goto_x(&hawhl, 50);
+  laser_goto_y(&hawhl, 50);
   osDelay(1000000);
   // osTimerStart(osTimerNew(GyroTimerCallback, osTimerPeriodic, &hawhl,
   //                         &(osTimerAttr_t){.name = "gyroTimer"}),
