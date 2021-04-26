@@ -40,11 +40,11 @@ void test_func(int i)
       all_wheels_move_xy_delta(&hawhl, 4, 0, 10);
       break;
     case 3:
-      hawhl.hsrv_shoulder->pos = 0;
-      hawhl.hsrv_elbow->pos = 90;
-      hawhl.hsrv_hand->pos = -150;
+      hawhl.hsrv_arm1->pos = 0;
+      hawhl.hsrv_arm2->pos = 90;
+      hawhl.hsrv_arm3->pos = -150;
       osDelay(1000);
-      hawhl.hsrv_waist->pos = 0;
+      hawhl.hsrv_yaw->pos = 0;
       break;
     case 4:
       test_func(3);
@@ -84,6 +84,8 @@ void StartDefaultTask(void *argument)
 
   laser_start(hawhl.hlas_x);
   laser_start(hawhl.hlas_y);
+  gyro_start(hawhl.hgyro);
+  osDelay(2000);
 
   //  osDelay(20000000);
   all_wheels_start_encoder(&hawhl);
@@ -178,36 +180,35 @@ void StartDefaultTask(void *argument)
 
 void arm_reset(AllWheels_HandleTypeDef *hawhl)
 {
-  hawhl->hsrv_shoulder->pos = 75;
-  hawhl->hsrv_elbow->pos = 90;
+  hawhl->hsrv_arm1->pos = 75;
+  hawhl->hsrv_arm2->pos = 90;
   osDelay(1000);
 }
 
-void arm_waist(AllWheels_HandleTypeDef *hawhl, int16_t pos)
+void arm_yaw(AllWheels_HandleTypeDef *hawhl, int16_t pos)
 {
-  hawhl->hsrv_waist->pos = pos;
+  hawhl->hsrv_yaw->pos = pos;
   osDelay(2000);
 }
 
-void arm_shoulder_elbow(AllWheels_HandleTypeDef *hawhl, int16_t shoulder,
-                        int16_t elbow)
+void arm_arm1_arm2(AllWheels_HandleTypeDef *hawhl, int16_t arm1, int16_t arm2)
 {
-  hawhl->hsrv_elbow->pos = elbow;
+  hawhl->hsrv_arm2->pos = arm2;
   osDelay(100);
-  hawhl->hsrv_shoulder->pos = shoulder;
+  hawhl->hsrv_arm1->pos = arm1;
   osDelay(1000);
 }
 
 void grab_up_ingredient_bottom(AllWheels_HandleTypeDef *hawhl)
 {
-  hawhl->hsrv_hand->pos = -150;
+  hawhl->hsrv_arm3->pos = -150;
   arm_reset(hawhl);
-  hawhl->hsrv_waist->pos = 0;
+  hawhl->hsrv_yaw->pos = 0;
   osDelay(2000);
-  hawhl->hsrv_shoulder->pos = 20;
-  hawhl->hsrv_elbow->pos = 90;
+  hawhl->hsrv_arm1->pos = 20;
+  hawhl->hsrv_arm2->pos = 90;
   osDelay(1000);
-  hawhl->hsrv_hand->pos = 0;
+  hawhl->hsrv_arm3->pos = 0;
   osDelay(1000);
   arm_reset(hawhl);
 }
@@ -215,70 +216,70 @@ void grab_up_ingredient_bottom(AllWheels_HandleTypeDef *hawhl)
 void put_rough_top(AllWheels_HandleTypeDef *hawhl)
 {
   arm_reset(hawhl);
-  arm_waist(hawhl, 0);
-  arm_shoulder_elbow(hawhl, -48, -90);
-  hawhl->hsrv_hand->pos = -150;
+  arm_yaw(hawhl, 0);
+  arm_arm1_arm2(hawhl, -48, -90);
+  hawhl->hsrv_arm3->pos = -150;
   osDelay(1000);
   arm_reset(hawhl);
 }
 
 void grab_rough_top(AllWheels_HandleTypeDef *hawhl)
 {
-  hawhl->hsrv_hand->pos = -150;
+  hawhl->hsrv_arm3->pos = -150;
   arm_reset(hawhl);
-  hawhl->hsrv_waist->pos = 0;
+  hawhl->hsrv_yaw->pos = 0;
   osDelay(2000);
-  hawhl->hsrv_shoulder->pos = -50;
-  hawhl->hsrv_elbow->pos = -120;
+  hawhl->hsrv_arm1->pos = -50;
+  hawhl->hsrv_arm2->pos = -120;
   osDelay(1000);
-  hawhl->hsrv_hand->pos = 0;
+  hawhl->hsrv_arm3->pos = 0;
   osDelay(500);
   arm_reset(hawhl);
 }
 
 void put_storge_bottom(AllWheels_HandleTypeDef *hawhl, int num)
 {
-  static int16_t waist_pos[3] = {183, 215, 245};
-  static int16_t shoulder_pos[3] = {20, 20, 0};
-  static int16_t elbow_pos[3] = {-30, -70, -50};
+  static int16_t yaw_pos[3] = {183, 215, 245};
+  static int16_t arm1_pos[3] = {20, 20, 0};
+  static int16_t arm2_pos[3] = {-30, -70, -50};
   arm_reset(hawhl);
-  hawhl->hsrv_waist->pos = waist_pos[num];
+  hawhl->hsrv_yaw->pos = yaw_pos[num];
   osDelay(2000);
-  hawhl->hsrv_elbow->pos = elbow_pos[num];
-  hawhl->hsrv_shoulder->pos = shoulder_pos[num];
+  hawhl->hsrv_arm2->pos = arm2_pos[num];
+  hawhl->hsrv_arm1->pos = arm1_pos[num];
   osDelay(1000);
-  hawhl->hsrv_hand->pos = -70;
+  hawhl->hsrv_arm3->pos = -70;
   osDelay(500);
   arm_reset(hawhl);
 }
 
 void grab_storge_top(AllWheels_HandleTypeDef *hawhl, int num)
 {
-  static int16_t waist_pos[3] = {183, 215, 245};
-  static int16_t shoulder_pos[3] = {30, 40, 25};
-  static int16_t elbow_pos[3] = {20, -10, 15};
+  static int16_t yaw_pos[3] = {183, 215, 245};
+  static int16_t arm1_pos[3] = {30, 40, 25};
+  static int16_t arm2_pos[3] = {20, -10, 15};
 
   arm_reset(hawhl);
-  hawhl->hsrv_hand->pos = -100;
-  arm_waist(hawhl, waist_pos[num]);
-  arm_shoulder_elbow(hawhl, shoulder_pos[num], elbow_pos[num]);
-  hawhl->hsrv_hand->pos = 0;
+  hawhl->hsrv_arm3->pos = -100;
+  arm_yaw(hawhl, yaw_pos[num]);
+  arm_arm1_arm2(hawhl, arm1_pos[num], arm2_pos[num]);
+  hawhl->hsrv_arm3->pos = 0;
   osDelay(500);
   arm_reset(hawhl);
 }
 
 void put_storge_top(AllWheels_HandleTypeDef *hawhl, int num)
 {
-  static int16_t waist_pos[3] = {183, 215, 245};
-  static int16_t shoulder_pos[3] = {40, 50, 40};
-  static int16_t elbow_pos[3] = {30, 30, 30};
+  static int16_t yaw_pos[3] = {183, 215, 245};
+  static int16_t arm1_pos[3] = {40, 50, 40};
+  static int16_t arm2_pos[3] = {30, 30, 30};
   arm_reset(hawhl);
-  hawhl->hsrv_waist->pos = waist_pos[num];
+  hawhl->hsrv_yaw->pos = yaw_pos[num];
   osDelay(2000);
-  hawhl->hsrv_elbow->pos = elbow_pos[num];
-  hawhl->hsrv_shoulder->pos = shoulder_pos[num];
+  hawhl->hsrv_arm2->pos = arm2_pos[num];
+  hawhl->hsrv_arm1->pos = arm1_pos[num];
   osDelay(1000);
-  hawhl->hsrv_hand->pos = -70;
+  hawhl->hsrv_arm3->pos = -70;
   osDelay(500);
   arm_reset(hawhl);
 }
@@ -397,18 +398,18 @@ void run_whole_map()
   int pos_main[3] = {1, 2, 0}, pos_up[3] = {0}, pos_down[3] = {0};
 
   // 机械臂归位
-  hawhl.hsrv_shoulder->pos = 80;
-  hawhl.hsrv_elbow->pos = 100;
-  hawhl.hsrv_hand->pos = -150;
+  hawhl.hsrv_arm1->pos = 80;
+  hawhl.hsrv_arm2->pos = 100;
+  hawhl.hsrv_arm3->pos = -150;
   osDelay(1000);
-  hawhl.hsrv_waist->pos = 0;
+  hawhl.hsrv_yaw->pos = 0;
 
   // goto T2;
   // test_func(1);
   // test_func(0);
   // test_func(4);
   // move_to_edge(&hawhl, 10, 10);
-  // hawhl.hsrv_hand->pos = 0;
+  // hawhl.arm3->pos = 0;
   // all_wheels_move_xy_delta(&hawhl, 4.5, -0.5, 10);
   // put_rough_top(&hawhl);
   // all_wheels_move_xy_delta(&hawhl, -4.5, 0.5, 10);

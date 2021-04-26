@@ -50,19 +50,19 @@ PWM_HandleTypeDef hpwmRR = {
     .channel = 11,
 };
 
-PWM_HandleTypeDef hpwm_waist = {
+PWM_HandleTypeDef hpwm_yaw = {
     .hpca = &hpca,
     .channel = 0,
 };
-PWM_HandleTypeDef hpwm_shoulder = {
+PWM_HandleTypeDef hpwm_arm1 = {
     .hpca = &hpca,
     .channel = 1,
 };
-PWM_HandleTypeDef hpwm_elbow = {
+PWM_HandleTypeDef hpwm_arm2 = {
     .hpca = &hpca,
     .channel = 2,
 };
-PWM_HandleTypeDef hpwm_hand = {
+PWM_HandleTypeDef hpwm_arm3 = {
     .hpca = &hpca,
     .channel = 3,
 };
@@ -113,23 +113,23 @@ Motor_HandleTypeDef hmtrRR = {
     .dir2_pin = RRD1_Pin,
 };
 
-Servo_HandleTypeDef hsrv_waist = {
-    .hpwm = &hpwm_waist,
+Servo_HandleTypeDef hsrv_yaw = {
+    .hpwm = &hpwm_yaw,
     .base = 200,
     .pos = 1,
 };
-Servo_HandleTypeDef hsrv_shoulder = {
-    .hpwm = &hpwm_shoulder,
+Servo_HandleTypeDef hsrv_arm1 = {
+    .hpwm = &hpwm_arm1,
     .base = 300,
     .pos = 1,
 };
-Servo_HandleTypeDef hsrv_elbow = {
-    .hpwm = &hpwm_elbow,
+Servo_HandleTypeDef hsrv_arm2 = {
+    .hpwm = &hpwm_arm2,
     .base = 320,
     .pos = 1,
 };
-Servo_HandleTypeDef hsrv_hand = {
-    .hpwm = &hpwm_hand,
+Servo_HandleTypeDef hsrv_arm3 = {
+    .hpwm = &hpwm_arm3,
     .base = 275,
     .pos = 1,
 };
@@ -161,10 +161,10 @@ AllWheels_HandleTypeDef hawhl = {
     .RL = &hwhlRL,
     .RR = &hwhlRR,
 
-    .hsrv_shoulder = &hsrv_shoulder,
-    .hsrv_waist = &hsrv_waist,
-    .hsrv_elbow = &hsrv_elbow,
-    .hsrv_hand = &hsrv_hand,
+    .hsrv_arm1 = &hsrv_arm1,
+    .hsrv_yaw = &hsrv_yaw,
+    .hsrv_arm2 = &hsrv_arm2,
+    .hsrv_arm3 = &hsrv_arm3,
 
     .hgyro = &hgyro,
     .hscan = &hscan,
