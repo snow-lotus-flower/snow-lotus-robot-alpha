@@ -10,7 +10,7 @@ extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Gyro_HandleTypeDef hgyro = {
     .huart = &huart1,
-    .drifting_rate = -2.4e-5,
+    .drifting_rate = -2.2e-5,
 };
 Scanner_HandleTypeDef hscan = {
     .huart = &huart2,
@@ -66,6 +66,14 @@ PWM_HandleTypeDef hpwm_arm3 = {
     .hpca = &hpca,
     .channel = 3,
 };
+PWM_HandleTypeDef hpwm_paw = {
+    .hpca = &hpca,
+    .channel = 4,
+};
+PWM_HandleTypeDef hpwm_plate = {
+    .hpca = &hpca,
+    .channel = 5,
+};
 
 PIDWheel_HandleTypeDef hpidFL, hpidFR, hpidRL, hpidRR;
 PIDYaw_HandleTypeDef hpid_yaw;
@@ -115,22 +123,32 @@ Motor_HandleTypeDef hmtrRR = {
 
 Servo_HandleTypeDef hsrv_yaw = {
     .hpwm = &hpwm_yaw,
-    .base = 200,
+    .base = 385,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm1 = {
     .hpwm = &hpwm_arm1,
-    .base = 300,
+    .base = 235,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm2 = {
     .hpwm = &hpwm_arm2,
-    .base = 320,
+    .base = 280,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm3 = {
     .hpwm = &hpwm_arm3,
-    .base = 275,
+    .base = 250,
+    .pos = 1,
+};
+Servo_HandleTypeDef hsrv_paw = {
+    .hpwm = &hpwm_paw,
+    .base = 250,
+    .pos = 1,
+};
+Servo_HandleTypeDef hsrv_plate = {
+    .hpwm = &hpwm_plate,
+    .base = 317,
     .pos = 1,
 };
 
@@ -165,6 +183,8 @@ AllWheels_HandleTypeDef hawhl = {
     .hsrv_yaw = &hsrv_yaw,
     .hsrv_arm2 = &hsrv_arm2,
     .hsrv_arm3 = &hsrv_arm3,
+    .hsrv_paw = &hsrv_paw,
+    .hsrv_plate = &hsrv_plate,
 
     .hgyro = &hgyro,
     .hscan = &hscan,

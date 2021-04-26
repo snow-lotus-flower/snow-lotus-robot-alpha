@@ -125,8 +125,19 @@ void StartDefaultTask(void *argument)
   // all_wheels_move_xy_delta(&hawhl, 300, 0, 20);
   // all_wheels_move_xy_delta(&hawhl, -300, 0, 20);
   osDelay(2000);
-  laser_goto_x(&hawhl, 50);
-  laser_goto_y(&hawhl, 50);
+  // osDelay(1000000);
+
+  laser_goto_x(&hawhl, 18.0);
+  laser_goto_y(&hawhl, 48.9);
+  hawhl.hsrv_paw->pos = -40;
+  hawhl.hsrv_yaw->pos = -205;
+  osDelay(10000);
+  hawhl.hsrv_arm2->pos = -108;
+  hawhl.hsrv_arm3->pos = 20;
+  osDelay(1000);
+  hawhl.hsrv_arm1->pos = -32;
+  osDelay(1500);
+  hawhl.hsrv_paw->pos = 85;
   osDelay(1000000);
   // osTimerStart(osTimerNew(GyroTimerCallback, osTimerPeriodic, &hawhl,
   //                         &(osTimerAttr_t){.name = "gyroTimer"}),
