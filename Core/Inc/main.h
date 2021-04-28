@@ -58,6 +58,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define POSITION_THREAD_FLAG 0x1
 #define T5_Pin GPIO_PIN_2
 #define T5_GPIO_Port GPIOE
 #define T6_Pin GPIO_PIN_3

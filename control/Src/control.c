@@ -7,6 +7,7 @@
 #include "usart.h"
 
 char debug_buffer[80];
+osSemaphoreId_t sem_pos;
 
 void StartDefaultTask(void *argument);
 void GyroTimerCallback(void *argument);
@@ -56,6 +57,48 @@ void test_func(int i)
     default:
       break;
   }
+}
+
+void checkPositionTask(void *argument)
+{
+  AllWheels_HandleTypeDef *hawhl = (AllWheels_HandleTypeDef *)argument;
+  uint32_t interval = 100;
+  uint32_t time_threshold = 500;
+  uint32_t stable_time = 0;
+  while (true) {
+    bool ok = true;
+    osDelay(interval);
+    if (hawhl->speed_components.laser_x_en &&
+        fabsf(hawhl->hpid_las_x->error) > hawhl->hpid_las_x->dead_zone_big)
+      ok = false;
+    if (hawhl->speed_components.laser_y_en &&
+        fabsf(hawhl->hpid_las_y->error) > hawhl->hpid_las_y->dead_zone_big)
+      ok = false;
+    if (fabsf(hawhl->hpid_yaw->ActualDeg) > 1.0) ok = false;
+
+    if (ok)
+      stable_time += interval;
+    else
+      stable_time = 0;
+    if (stable_time >= time_threshold) {
+      osSemaphoreRelease(sem_pos);
+      osThreadExit();
+    };
+  }
+}
+
+void wait_in_position(AllWheels_HandleTypeDef *hawhl)
+{
+  sem_pos =
+      osSemaphoreNew(1, 0, &(osSemaphoreAttr_t){.name = "Car in Position Sem"});
+
+  TaskHandle_t *task =
+      osThreadNew(checkPositionTask, hawhl,
+                  &(osThreadAttr_t){.name = "checkPostionTask",
+                                    .priority = osPriorityBelowNormal});
+  osSemaphoreAcquire(sem_pos, osWaitForever);
+  vTaskDelete(task);
+  osSemaphoreDelete(sem_pos);
 }
 
 void StartDefaultTask(void *argument)
@@ -127,11 +170,99 @@ void StartDefaultTask(void *argument)
   osDelay(2000);
   // osDelay(1000000);
 
-  laser_goto_x(&hawhl, 18.0);
-  laser_goto_y(&hawhl, 48.9);
+  // laser_goto_x(&hawhl, 18.0);
+  while (1) {
+    // laser_goto_x(&hawhl, 20.0);
+    // wait_in_position(&hawhl);
+    int times = 0;
+  QRCode:
+    laser_goto_xy(&hawhl, 34.0, 152.5);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+  Color:
+    laser_goto_xy(&hawhl, 34.0, 77.9);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+  Ingredient:
+    laser_goto_xy(&hawhl, 18.6, 77.9 - 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 18.6, 77.9 + 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 18.6, 77.9);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+  OperatePut:
+    turn_left(hawhl.hgyro, true);
+    laser_goto_xy(&hawhl, 28.5, 107.5);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5, 107.5 + 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5, 107.5 - 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+  OperateTake:
+    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5 + 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5 - 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+  CompletePut:
+    turn_left(hawhl.hgyro, true);
+    laser_goto_xy(&hawhl, 28.5, 107.5);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5, 107.5 + 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5, 107.5 - 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+
+    turn_left(hawhl.hgyro, false);
+    osDelay(200);
+    turn_left(hawhl.hgyro, false);
+
+    if (times == 0) {
+      times++;
+      goto Ingredient;
+    }
+
+    // all_wheels_move_xy_delta(&hawhl, -180, 0, 40);
+    // osDelay(2000);
+    // all_wheels_move_xy_delta(&hawhl, 183, 0, 40);
+    // osDelay(2000);
+  }
+  laser_goto_y(&hawhl, 93.5);
+  sem_pos =
+      osSemaphoreNew(1, 0, &(osSemaphoreAttr_t){.name = "Car in Position Sem"});
+  osThreadNew(checkPositionTask, &hawhl,
+              &(osThreadAttr_t){.name = "checkPostionTask",
+                                .priority = osPriorityBelowNormal});
   hawhl.hsrv_paw->pos = -40;
   hawhl.hsrv_yaw->pos = -205;
-  osDelay(10000);
+  osSemaphoreAcquire(sem_pos, osWaitForever);
   hawhl.hsrv_arm2->pos = -108;
   hawhl.hsrv_arm3->pos = 20;
   osDelay(1000);
