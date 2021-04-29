@@ -123,7 +123,7 @@ Motor_HandleTypeDef hmtrRR = {
 
 Servo_HandleTypeDef hsrv_yaw = {
     .hpwm = &hpwm_yaw,
-    .base = 385,
+    .base = 248,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm1 = {

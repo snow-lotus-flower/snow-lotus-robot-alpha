@@ -181,25 +181,26 @@ void StartDefaultTask(void *argument)
     laser_disable_xy(&hawhl);
     osDelay(2000);
   Color:
-    laser_goto_xy(&hawhl, 34.0, 77.9);
+    laser_goto_xy(&hawhl, 49.0, 77.9);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     osDelay(2000);
   Ingredient:
-    laser_goto_xy(&hawhl, 18.6, 77.9 - 15);
+    laser_goto_xy(&hawhl, 33.6, 77.9 - 15);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     osDelay(2000);
-    laser_goto_xy(&hawhl, 18.6, 77.9 + 15);
+    laser_goto_xy(&hawhl, 33.6, 77.9 + 15);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     osDelay(2000);
-    laser_goto_xy(&hawhl, 18.6, 77.9);
+    laser_goto_xy(&hawhl, 33.6, 77.9);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     osDelay(2000);
   OperatePut:
     turn_left(hawhl.hgyro, true);
+    wait_in_position(&hawhl);
     laser_goto_xy(&hawhl, 28.5, 107.5);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
@@ -213,20 +214,6 @@ void StartDefaultTask(void *argument)
     laser_disable_xy(&hawhl);
     osDelay(2000);
   OperateTake:
-    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5 + 15);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5 - 8.5, 107.5 - 15);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-  CompletePut:
-    turn_left(hawhl.hgyro, true);
     laser_goto_xy(&hawhl, 28.5, 107.5);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
@@ -239,10 +226,26 @@ void StartDefaultTask(void *argument)
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     osDelay(2000);
+  CompletePut:
+    turn_left(hawhl.hgyro, true);
+    wait_in_position(&hawhl);
+    laser_goto_xy(&hawhl, 28.5 + 15, 107.5);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5 + 15, 107.5 + 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
+    laser_goto_xy(&hawhl, 28.5 + 15, 107.5 - 15);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    osDelay(2000);
 
     turn_left(hawhl.hgyro, false);
     osDelay(200);
     turn_left(hawhl.hgyro, false);
+    wait_in_position(&hawhl);
 
     if (times == 0) {
       times++;
