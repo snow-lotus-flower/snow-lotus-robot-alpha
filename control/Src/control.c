@@ -89,40 +89,16 @@ void checkPositionTask(void *argument)
 
 void wait_in_position(AllWheels_HandleTypeDef *hawhl)
 {
-  // sem_pos =
-  // osSemaphoreNew(1, 0, &(osSemaphoreAttr_t){.name = "Car in Position Sem"});
+  sem_pos =
+      osSemaphoreNew(1, 0, &(osSemaphoreAttr_t){.name = "Car in Position Sem"});
 
-  // TaskHandle_t *task =
-  //     osThreadNew(checkPositionTask, hawhl,
-  //                 &(osThreadAttr_t){.name = "checkPostionTask",
-  //                                   .priority = osPriorityBelowNormal});
-  // osSemaphoreAcquire(sem_pos, osWaitForever);
-  // vTaskDelete(task);
-  // osSemaphoreDelete(sem_pos);
-
-  uint32_t interval = 100;
-  uint32_t time_threshold = 500;
-  uint32_t stable_time = 0;
-
-  while (true) {
-    bool ok = true;
-    osDelay(interval);
-    if (hawhl->speed_components.laser_x_en &&
-        fabsf(hawhl->hpid_las_x->error) > hawhl->hpid_las_x->dead_zone_big)
-      ok = false;
-    if (hawhl->speed_components.laser_y_en &&
-        fabsf(hawhl->hpid_las_y->error) > hawhl->hpid_las_y->dead_zone_big)
-      ok = false;
-    if (fabsf(hawhl->hpid_yaw->ActualDeg) > 1.0) ok = false;
-
-    if (ok)
-      stable_time += interval;
-    else
-      stable_time = 0;
-    if (stable_time >= time_threshold) {
-      return;
-    };
-  }
+  TaskHandle_t *task =
+      osThreadNew(checkPositionTask, hawhl,
+                  &(osThreadAttr_t){.name = "checkPostionTask",
+                                    .priority = osPriorityBelowNormal});
+  osSemaphoreAcquire(sem_pos, osWaitForever);
+  vTaskDelete(task);
+  osSemaphoreDelete(sem_pos);
 }
 
 void StartDefaultTask(void *argument)
