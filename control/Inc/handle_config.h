@@ -10,7 +10,6 @@
 #include "pca9685.h"
 #include "pid.h"
 #include "pwm_driver.h"
-#include "seg_display.h"
 #include "wheels.h"
 
 extern Scanner_HandleTypeDef hscan;

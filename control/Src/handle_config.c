@@ -26,10 +26,11 @@ Laser_HandleTypeDef hlas_y = {
 };
 
 PCA9685_HandleTypeDef hpca = {
-    .i2c_handle = &hi2c1,
+    .i2c_handle = NULL,
     .device_address = PCA9865_I2C_DEFAULT_DEVICE_ADDRESS,
     .inverted = false,
 };
+
 // Display_HandleTypeDef hdisp = {
 //     .hspi = &hspi1, .cs_port = CS_GPIO_Port, .cs_pin = CS_Pin};
 
@@ -94,6 +95,8 @@ Encoder_HandleTypeDef hencRR = {
 
 Motor_HandleTypeDef hmtrFL = {
     .hpwm = &hpwmFL,
+    .htim = &htim12,
+    .tim_ch = TIM_CHANNEL_1,
     .dir1_port = FLD0_GPIO_Port,
     .dir1_pin = FLD0_Pin,
     .dir2_port = FLD1_GPIO_Port,
@@ -101,6 +104,8 @@ Motor_HandleTypeDef hmtrFL = {
 };
 Motor_HandleTypeDef hmtrFR = {
     .hpwm = &hpwmFR,
+    .htim = &htim12,
+    .tim_ch = TIM_CHANNEL_2,
     .dir1_port = FRD0_GPIO_Port,
     .dir1_pin = FRD0_Pin,
     .dir2_port = FRD1_GPIO_Port,
@@ -108,6 +113,8 @@ Motor_HandleTypeDef hmtrFR = {
 };
 Motor_HandleTypeDef hmtrRL = {
     .hpwm = &hpwmRL,
+    .htim = &htim13,
+    .tim_ch = TIM_CHANNEL_1,
     .dir1_port = RLD0_GPIO_Port,
     .dir1_pin = RLD0_Pin,
     .dir2_port = RLD1_GPIO_Port,
@@ -115,6 +122,8 @@ Motor_HandleTypeDef hmtrRL = {
 };
 Motor_HandleTypeDef hmtrRR = {
     .hpwm = &hpwmRR,
+    .htim = &htim14,
+    .tim_ch = TIM_CHANNEL_1,
     .dir1_port = RRD0_GPIO_Port,
     .dir1_pin = RRD0_Pin,
     .dir2_port = RRD1_GPIO_Port,
@@ -122,31 +131,43 @@ Motor_HandleTypeDef hmtrRR = {
 };
 
 Servo_HandleTypeDef hsrv_yaw = {
+    .htim = &htim8,
+    .tim_ch = TIM_CHANNEL_1,
     .hpwm = &hpwm_yaw,
-    .base = 248,
+    .base = 243,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm1 = {
+    .htim = &htim8,
+    .tim_ch = TIM_CHANNEL_2,
     .hpwm = &hpwm_arm1,
     .base = 235,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm2 = {
+    .htim = &htim8,
+    .tim_ch = TIM_CHANNEL_3,
     .hpwm = &hpwm_arm2,
     .base = 280,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_arm3 = {
+    .htim = &htim8,
+    .tim_ch = TIM_CHANNEL_4,
     .hpwm = &hpwm_arm3,
     .base = 250,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_paw = {
+    .htim = &htim9,
+    .tim_ch = TIM_CHANNEL_1,
     .hpwm = &hpwm_paw,
     .base = 250,
     .pos = 1,
 };
 Servo_HandleTypeDef hsrv_plate = {
+    .htim = &htim9,
+    .tim_ch = TIM_CHANNEL_2,
     .hpwm = &hpwm_plate,
     .base = 317,
     .pos = 1,

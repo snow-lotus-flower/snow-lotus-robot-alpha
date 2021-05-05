@@ -59,24 +59,6 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 #define POSITION_THREAD_FLAG 0x1
-#define T5_Pin GPIO_PIN_2
-#define T5_GPIO_Port GPIOE
-#define T6_Pin GPIO_PIN_3
-#define T6_GPIO_Port GPIOE
-#define T7_Pin GPIO_PIN_4
-#define T7_GPIO_Port GPIOE
-#define T8_Pin GPIO_PIN_5
-#define T8_GPIO_Port GPIOE
-#define T1_Pin GPIO_PIN_0
-#define T1_GPIO_Port GPIOC
-#define T2_Pin GPIO_PIN_1
-#define T2_GPIO_Port GPIOC
-#define T3_Pin GPIO_PIN_2
-#define T3_GPIO_Port GPIOC
-#define T4_Pin GPIO_PIN_3
-#define T4_GPIO_Port GPIOC
-#define LED_2_Pin GPIO_PIN_6
-#define LED_2_GPIO_Port GPIOA
 #define FRD1_Pin GPIO_PIN_12
 #define FRD1_GPIO_Port GPIOA
 #define FLD1_Pin GPIO_PIN_0
