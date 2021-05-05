@@ -9,6 +9,17 @@
 char debug_buffer[80];
 osSemaphoreId_t sem_pos;
 
+int ingredient_order_up[3] = {0}, ingredient_order_down[3] = {0};
+int order_up[3] = {0}, order_down[3] = {0};
+int *order_up_or_down;
+
+int pos_main[3] = {2, 1, 0}, pos_up[3] = {0}, pos_down[3] = {0};
+float lasx_ing_up = 30.3, lasx_ing_down = 30.3, lasx_ope = 28.5,
+      lasx_com_down = 43.4, lasx_com_up = 43.9;
+float lasy_ing = 77.9, lasy_ope = 107.5, lasy_com = 107.5;
+float lasx_ing_offset = 20, lasx_ope_offset = 10;
+float lasy_offset[3] = {-15.0, 0, 15.0};
+
 void StartDefaultTask(void *argument);
 void GyroTimerCallback(void *argument);
 void move_to_edge(AllWheels_HandleTypeDef *hawhl, float speedx, float speedy);
@@ -143,16 +154,15 @@ void timer_pwm_init(AllWheels_HandleTypeDef *hawhl)
 
 void StartDefaultTask(void *argument)
 {
-  lcdInit(&hi2c2, (uint8_t)0x27, (uint8_t)2, (uint8_t)16);
-
-  // Print text and home position 0,0
-  lcdPrintStr((uint8_t *)"Hello,", 6);
+  lcdInit(&hi2c2, (uint8_t)0x27, (uint8_t)1, (uint8_t)16);
 
   // Set cursor at zero position of line 3
-  lcdSetCursorPosition(0, 2);
+  lcdSetCursorPosition(0, 0);
+  // Print text and home position 0,0
+  lcdPrintStr((uint8_t *)"Hello, world!", 13);
 
   // Print text at cursor position
-  lcdPrintStr((uint8_t *)"World!", 6);
+  // lcdPrintStr((uint8_t *)"World!", 6);
 
   // gyro_start(&hgyro);
   //  pwm_init(&hpca);
@@ -215,17 +225,45 @@ void StartDefaultTask(void *argument)
     // laser_goto_x(&hawhl, 20.0);
     // wait_in_position(&hawhl);
     int times = 0;
-    goto Ingredient;
   QRCode:
-    laser_goto_xy(&hawhl, 34.0, 152.5);
+    scanner_start(&hscan);
+    laser_goto_xy(&hawhl, 34.0, 145.5);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    osDelay(2000);
+    while (!hscan.new_data) {
+      osDelay(1000);
+    }
+    lcdSetCursorPosition(0, 0);
+    // lcdPrintStr((uint8_t *)"Task: ", 6);
+    lcdPrintStr(hscan.result, 7);
+
   Color:
     laser_goto_xy(&hawhl, 49.0, 77.9);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    osDelay(2000);
+    goto jump;
+    openmv_start(&hopmv);
+    hopmv.new_data = false;
+    while (!hopmv.new_data) osDelay(1000);
+    HAL_UART_DMAStop(hopmv.huart);
+  jump:
+    memcpy(hopmv.result, "021+012", 7);
+
+    lcdSetCursorPosition(0, 0);
+    lcdPrintStr(hopmv.result, 7);
+
+    for (int i = 0; i < 3; ++i) {
+      pos_up[i] = hawhl.hopmv->result[i] - '0';
+      pos_down[i] = hawhl.hopmv->result[i + 4] - '0';
+    }
+
+    for (int i = 0; i < 3; ++i) {
+      order_up[i] = pos_main[hawhl.hscan->result[i] - '1'];
+      order_down[i] = pos_main[hawhl.hscan->result[i + 4] - '1'];
+      ingredient_order_up[i] = pos_up[hawhl.hscan->result[i] - '1'];
+      ingredient_order_down[i] = pos_down[hawhl.hscan->result[i + 4] - '1'];
+    }
+
   Ingredient:
     if (times == 0) {
       goto IngredientUp;
@@ -234,7 +272,8 @@ void StartDefaultTask(void *argument)
     }
   IngredientUp:
     // 去第一个准备抓东西的地方
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9 - 15);
+    laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_up[0]]);
     // 路上复原爪子位置
     arm_reset(&hawhl);
 
@@ -249,12 +288,14 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_arm3->pos = 20;
     osDelay(500);
     // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9 - 15);
+    laser_goto_xy(&hawhl, lasx_ing_up,
+                  lasy_ing + lasy_offset[ingredient_order_up[0]]);
     wait_in_position(&hawhl);
     hawhl.hsrv_paw->pos = 85;
     osDelay(300);
     // 去第二个准备位置
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9 + 15);
+    laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_up[1]]);
     // 路上把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
     hawhl.hsrv_yaw->pos = 209;
@@ -280,13 +321,15 @@ void StartDefaultTask(void *argument)
     osDelay(500);
 
     // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9 + 15);
+    laser_goto_xy(&hawhl, lasx_ing_up,
+                  lasy_ing + lasy_offset[ingredient_order_up[1]]);
     wait_in_position(&hawhl);
     hawhl.hsrv_paw->pos = 85;
     osDelay(300);
 
     // 去第三个准备位置
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9);
+    laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_up[2]]);
     // 路上把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
     hawhl.hsrv_yaw->pos = 209;
@@ -312,7 +355,8 @@ void StartDefaultTask(void *argument)
     osDelay(500);
 
     // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9);
+    laser_goto_xy(&hawhl, lasx_ing_up,
+                  lasy_ing + lasy_offset[ingredient_order_up[2]]);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     hawhl.hsrv_paw->pos = 85;
@@ -332,31 +376,35 @@ void StartDefaultTask(void *argument)
     osDelay(300);
     // 转的时候复原爪子位置
     arm_reset(&hawhl);
+    wait_in_position(&hawhl);
     goto OperatePut;
 
   IngredientDown:
     // 去第一个准备抓东西的地方
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9 - 15);
+    laser_goto_xy(&hawhl, lasx_ing_down + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_down[0]]);
     // 路上复原爪子位置
     arm_reset(&hawhl);
 
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    // 调整到抓上层第一个的位置
+    // 调整到抓下层第一个的位置
     hawhl.hsrv_plate->pos = -180;
     hawhl.hsrv_yaw->pos = 0;
     hawhl.hsrv_paw->pos = -20;
     hawhl.hsrv_arm1->pos = -92;
     hawhl.hsrv_arm2->pos = -150;
-    hawhl.hsrv_arm3->pos = 180;
+    hawhl.hsrv_arm3->pos = 175;
     osDelay(500);
-    // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9 - 15);
+    // 向前, 抓下层
+    laser_goto_xy(&hawhl, lasx_ing_down,
+                  lasy_ing + lasy_offset[ingredient_order_down[0]]);
     wait_in_position(&hawhl);
     hawhl.hsrv_paw->pos = 85;
     osDelay(300);
     // 去第二个准备位置
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9 + 15);
+    laser_goto_xy(&hawhl, lasx_ing_down + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_down[1]]);
     // 等待退出货架区域
     osDelay(1000);
     // 路上把抓到的东西放在货架里
@@ -374,23 +422,25 @@ void StartDefaultTask(void *argument)
 
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    // 调整到抓上层第二个的位置
+    // 调整到抓下层第二个的位置
     hawhl.hsrv_plate->pos = 0;
     hawhl.hsrv_yaw->pos = 0;
     hawhl.hsrv_paw->pos = -20;
     hawhl.hsrv_arm1->pos = -92;
     hawhl.hsrv_arm2->pos = -150;
-    hawhl.hsrv_arm3->pos = 180;
+    hawhl.hsrv_arm3->pos = 175;
     osDelay(500);
 
-    // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9 + 15);
+    // 向前, 抓下层
+    laser_goto_xy(&hawhl, lasx_ing_down,
+                  lasy_ing + lasy_offset[ingredient_order_down[1]]);
     wait_in_position(&hawhl);
     hawhl.hsrv_paw->pos = 85;
     osDelay(300);
 
     // 去第三个准备位置
-    laser_goto_xy(&hawhl, 30.3 + 20, 77.9);
+    laser_goto_xy(&hawhl, lasx_ing_down + lasx_ing_offset,
+                  lasy_ing + lasy_offset[ingredient_order_down[2]]);
     // 等待退出货架区域
     osDelay(1000);
     // 路上把抓到的东西放在货架里
@@ -408,17 +458,18 @@ void StartDefaultTask(void *argument)
 
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    // 调整到抓上层第三个的位置
+    // 调整到抓下层第三个的位置
     hawhl.hsrv_plate->pos = 180;
     hawhl.hsrv_yaw->pos = 0;
     hawhl.hsrv_paw->pos = -20;
     hawhl.hsrv_arm1->pos = -92;
     hawhl.hsrv_arm2->pos = -150;
-    hawhl.hsrv_arm3->pos = 180;
+    hawhl.hsrv_arm3->pos = 175;
     osDelay(500);
 
-    // 向前, 抓上层
-    laser_goto_xy(&hawhl, 30.3, 77.9);
+    // 向前, 抓下层
+    laser_goto_xy(&hawhl, lasx_ing_down,
+                  lasy_ing + lasy_offset[ingredient_order_down[2]]);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     hawhl.hsrv_paw->pos = 85;
@@ -441,12 +492,15 @@ void StartDefaultTask(void *argument)
     osDelay(300);
     // 转的时候复原爪子位置
     arm_reset(&hawhl);
+    wait_in_position(&hawhl);
     goto OperatePut;
 
   OperatePut:
-    wait_in_position(&hawhl);
+    order_up_or_down = times == 0 ? order_up : order_down;
+
     // 去第一个位置
-    laser_goto_xy(&hawhl, 28.5, 107.5);
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[0]]);
     // 拿第一个东西
     hawhl.hsrv_plate->pos = -180;
     hawhl.hsrv_arm3->pos = 200;
@@ -478,7 +532,8 @@ void StartDefaultTask(void *argument)
     arm_reset(&hawhl);
 
     // 去第二个位置
-    laser_goto_xy(&hawhl, 28.5, 107.5 + 15);
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[1]]);
     // 拿第二个东西
     hawhl.hsrv_plate->pos = 0;
     hawhl.hsrv_arm3->pos = 200;
@@ -510,7 +565,8 @@ void StartDefaultTask(void *argument)
     arm_reset(&hawhl);
 
     // 去第三个位置
-    laser_goto_xy(&hawhl, 28.5, 107.5 - 15);
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[2]]);
     // 拿第三个东西
     hawhl.hsrv_plate->pos = 180;
     hawhl.hsrv_arm3->pos = 200;
@@ -541,34 +597,328 @@ void StartDefaultTask(void *argument)
     osDelay(500);
     arm_reset(&hawhl);
   OperateTake:
-    laser_goto_xy(&hawhl, 28.5, 107.5);
+    order_up_or_down = times == 0 ? order_up : order_down;
+    // 去第一个准备位置
+    laser_goto_xy(&hawhl, lasx_ope + lasx_ope_offset,
+                  lasy_ope + lasy_offset[order_up_or_down[0]]);
     wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5, 107.5 + 15);
+    // 调整到抓第一个的位置
+    hawhl.hsrv_plate->pos = -180;
+    hawhl.hsrv_yaw->pos = 0;
+    hawhl.hsrv_paw->pos = -20;
+    hawhl.hsrv_arm1->pos = -110;
+    hawhl.hsrv_arm2->pos = -160;
+    hawhl.hsrv_arm3->pos = 205;
+    osDelay(1000);
+    // 向前, 抓第一个
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[0]]);
     wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5, 107.5 - 15);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-  CompletePut:
-    turn_left(hawhl.hgyro, true);
-    wait_in_position(&hawhl);
-    laser_goto_xy(&hawhl, 28.5 + 15, 107.5);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5 + 15, 107.5 + 15);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
-    laser_goto_xy(&hawhl, 28.5 + 15, 107.5 - 15);
-    wait_in_position(&hawhl);
-    laser_disable_xy(&hawhl);
-    osDelay(2000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    all_wheels_move_xy_delta(&hawhl, -10, 0, 40);
 
+    // 去第二个准备位置
+    laser_goto_xy(&hawhl, lasx_ope + lasx_ope_offset,
+                  lasy_ope + lasy_offset[order_up_or_down[1]]);
+    // 路上把抓到的东西放在货架里
+    arm_reset(&hawhl);
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -60;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    // 路上复原爪子位置
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 调整到抓第二个的位置
+    hawhl.hsrv_plate->pos = 0;
+    hawhl.hsrv_yaw->pos = 0;
+    hawhl.hsrv_paw->pos = -20;
+    hawhl.hsrv_arm1->pos = -110;
+    hawhl.hsrv_arm2->pos = -160;
+    hawhl.hsrv_arm3->pos = 205;
+    osDelay(1000);
+    // 向前, 抓第二个
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[1]]);
+    wait_in_position(&hawhl);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    all_wheels_move_xy_delta(&hawhl, -10, 0, 40);
+
+    // 去第三个准备位置
+    laser_goto_xy(&hawhl, lasx_ope + lasx_ope_offset,
+                  lasy_ope + lasy_offset[order_up_or_down[2]]);
+    // 路上把抓到的东西放在货架里
+    arm_reset(&hawhl);
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -60;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    // 路上复原爪子位置
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 调整到抓第三个的位置
+    hawhl.hsrv_plate->pos = 180;
+    hawhl.hsrv_yaw->pos = 0;
+    hawhl.hsrv_paw->pos = -20;
+    hawhl.hsrv_arm1->pos = -110;
+    hawhl.hsrv_arm2->pos = -160;
+    hawhl.hsrv_arm3->pos = 205;
+    osDelay(1000);
+    // 向前, 抓第三个
+    laser_goto_xy(&hawhl, lasx_ope,
+                  lasy_ope + lasy_offset[order_up_or_down[2]]);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    all_wheels_move_xy_delta(&hawhl, -10, 0, 40);
+    // 左转
+    turn_left(hawhl.hgyro, true);
+    // 路上把抓到的东西放在货架里
+    arm_reset(&hawhl);
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -60;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    // 路上复原爪子位置
+    arm_reset(&hawhl);
+    wait_in_position(&hawhl);
+
+  CompletePut:
+    if (times == 0) {
+      goto CompletePutDown;
+    } else {
+      goto CompletePutUp;
+    }
+  CompletePutUp:
+    order_up_or_down = times == 0 ? order_up : order_down;
+    // 去第一个位置
+    laser_goto_xy(&hawhl, lasx_com_up,
+                  lasy_com + lasy_offset[order_up_or_down[0]]);
+    // 拿第一个东西
+    hawhl.hsrv_plate->pos = -180;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第一个东西
+    hawhl.hsrv_arm2->pos = -180;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -60;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 150;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    // 去第二个位置
+    laser_goto_xy(&hawhl, lasx_com_up,
+                  lasy_com + lasy_offset[order_up_or_down[1]]);
+    // 拿第二个东西
+    hawhl.hsrv_plate->pos = 0;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第二个东西
+    hawhl.hsrv_arm2->pos = -180;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -60;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 150;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    // 去第三个位置
+    laser_goto_xy(&hawhl, lasx_com_up,
+                  lasy_com + lasy_offset[order_up_or_down[2]]);
+    // 拿第三个东西
+    hawhl.hsrv_plate->pos = 180;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第三个东西
+    hawhl.hsrv_arm2->pos = -180;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -60;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 150;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+    goto GoBack;
+
+  CompletePutDown:
+    order_up_or_down = times == 0 ? order_up : order_down;
+    // 去第一个位置
+    laser_goto_xy(&hawhl, lasx_com_down,
+                  lasy_com + lasy_offset[order_up_or_down[0]]);
+    // 拿第一个东西
+    hawhl.hsrv_plate->pos = -180;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第一个东西
+    hawhl.hsrv_arm2->pos = -160;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -110;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 200;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    // 去第二个位置
+    laser_goto_xy(&hawhl, lasx_com_down,
+                  lasy_com + lasy_offset[order_up_or_down[1]]);
+    // 拿第二个东西
+    hawhl.hsrv_plate->pos = 0;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第二个东西
+    hawhl.hsrv_arm2->pos = -160;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -110;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 200;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    // 去第三个位置
+    laser_goto_xy(&hawhl, lasx_com_down,
+                  lasy_com + lasy_offset[order_up_or_down[2]]);
+    // 拿第三个东西
+    hawhl.hsrv_plate->pos = 180;
+    hawhl.hsrv_arm3->pos = 200;
+    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_arm1->pos = 95;
+    hawhl.hsrv_arm2->pos = -190;
+    osDelay(2000);
+    hawhl.hsrv_arm3->pos = -70;
+    osDelay(1000);
+    hawhl.hsrv_paw->pos = 85;
+    osDelay(300);
+    hawhl.hsrv_arm2->pos = 0;
+    osDelay(500);
+    arm_reset(&hawhl);
+
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    // 放第三个东西
+    hawhl.hsrv_arm2->pos = -160;
+    osDelay(500);
+    hawhl.hsrv_arm1->pos = -110;
+    osDelay(500);
+    hawhl.hsrv_arm3->pos = 200;
+    osDelay(500);
+    hawhl.hsrv_paw->pos = -20;
+    osDelay(300);
+    hawhl.hsrv_arm3->pos = 260;
+    osDelay(500);
+    arm_reset(&hawhl);
+    goto GoBack;
+
+  GoBack:
     turn_left(hawhl.hgyro, false);
     osDelay(200);
     turn_left(hawhl.hgyro, false);
@@ -657,7 +1007,7 @@ void arm_reset(AllWheels_HandleTypeDef *hawhl)
   hawhl->hsrv_arm1->pos = 0;
   osDelay(300);
   hawhl->hsrv_yaw->pos = 0;
-  hawhl->hsrv_plate->pos = 0;
+  // hawhl->hsrv_plate->pos = 0;
   osDelay(1000);
 }
 
