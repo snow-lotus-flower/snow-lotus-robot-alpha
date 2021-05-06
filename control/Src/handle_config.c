@@ -10,7 +10,7 @@ extern osTimerId_t EncoderTimerHandle, PIDTimerHandle;
 
 Gyro_HandleTypeDef hgyro = {
     .huart = &huart1,
-    .drifting_rate = -2.2e-5,
+    .drifting_rate = -2.0661e-5,
 };
 Scanner_HandleTypeDef hscan = {
     .huart = &huart2,

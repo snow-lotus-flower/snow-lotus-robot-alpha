@@ -14,7 +14,7 @@ int order_up[3] = {0}, order_down[3] = {0};
 int *order_up_or_down;
 
 int pos_main[3] = {2, 1, 0}, pos_up[3] = {0}, pos_down[3] = {0};
-float lasx_ing_up = 30.3, lasx_ing_down = 30.3, lasx_ope = 28.5,
+float lasx_ing_up = 30.3, lasx_ing_down = 30.7, lasx_ope = 28.5,
       lasx_com_down = 43.4, lasx_com_up = 43.9;
 float lasy_ing = 77.9, lasy_ope = 107.5, lasy_com = 107.5;
 float lasx_ing_offset = 20, lasx_ope_offset = 10;
@@ -159,7 +159,7 @@ void StartDefaultTask(void *argument)
   // Set cursor at zero position of line 3
   lcdSetCursorPosition(0, 0);
   // Print text and home position 0,0
-  lcdPrintStr((uint8_t *)"Hello, world!", 13);
+  lcdPrintStr((uint8_t *)"Hello!", 6);
 
   // Print text at cursor position
   // lcdPrintStr((uint8_t *)"World!", 6);
@@ -228,7 +228,6 @@ void StartDefaultTask(void *argument)
   QRCode:
     scanner_start(&hscan);
     laser_goto_xy(&hawhl, 34.0, 145.5);
-    wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     while (!hscan.new_data) {
       osDelay(1000);
@@ -238,16 +237,13 @@ void StartDefaultTask(void *argument)
     lcdPrintStr(hscan.result, 7);
 
   Color:
-    laser_goto_xy(&hawhl, 49.0, 77.9);
+    laser_goto_xy(&hawhl, 49.0, 87.6);
+    openmv_start(&hopmv);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
-    goto jump;
-    openmv_start(&hopmv);
     hopmv.new_data = false;
     while (!hopmv.new_data) osDelay(1000);
     HAL_UART_DMAStop(hopmv.huart);
-  jump:
-    memcpy(hopmv.result, "021+012", 7);
 
     lcdSetCursorPosition(0, 0);
     lcdPrintStr(hopmv.result, 7);
@@ -296,12 +292,13 @@ void StartDefaultTask(void *argument)
     // 去第二个准备位置
     laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
                   lasy_ing + lasy_offset[ingredient_order_up[1]]);
+    osDelay(1000);
     // 路上把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -331,11 +328,12 @@ void StartDefaultTask(void *argument)
     laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
                   lasy_ing + lasy_offset[ingredient_order_up[2]]);
     // 路上把抓到的东西放在货架里
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -366,10 +364,10 @@ void StartDefaultTask(void *argument)
     turn_left(hawhl.hgyro, true);
     // 转的时候把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -409,10 +407,10 @@ void StartDefaultTask(void *argument)
     osDelay(1000);
     // 路上把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -445,10 +443,10 @@ void StartDefaultTask(void *argument)
     osDelay(1000);
     // 路上把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -482,10 +480,10 @@ void StartDefaultTask(void *argument)
     turn_left(hawhl.hgyro, true);
     // 转的时候把抓到的东西放在货架里
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -504,7 +502,7 @@ void StartDefaultTask(void *argument)
     // 拿第一个东西
     hawhl.hsrv_plate->pos = -180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -528,7 +526,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第二个位置
@@ -537,7 +535,7 @@ void StartDefaultTask(void *argument)
     // 拿第二个东西
     hawhl.hsrv_plate->pos = 0;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -561,7 +559,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第三个位置
@@ -570,7 +568,7 @@ void StartDefaultTask(void *argument)
     // 拿第三个东西
     hawhl.hsrv_plate->pos = 180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -594,7 +592,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
   OperateTake:
     order_up_or_down = times == 0 ? order_up : order_down;
@@ -625,10 +623,10 @@ void StartDefaultTask(void *argument)
     // 路上把抓到的东西放在货架里
     arm_reset(&hawhl);
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -661,10 +659,10 @@ void StartDefaultTask(void *argument)
     // 路上把抓到的东西放在货架里
     arm_reset(&hawhl);
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -696,10 +694,10 @@ void StartDefaultTask(void *argument)
     // 路上把抓到的东西放在货架里
     arm_reset(&hawhl);
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
-    osDelay(2000);
+    osDelay(1000);
     hawhl.hsrv_arm3->pos = -60;
     osDelay(1000);
     hawhl.hsrv_paw->pos = -20;
@@ -722,7 +720,7 @@ void StartDefaultTask(void *argument)
     // 拿第一个东西
     hawhl.hsrv_plate->pos = -180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -746,7 +744,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第二个位置
@@ -755,7 +753,7 @@ void StartDefaultTask(void *argument)
     // 拿第二个东西
     hawhl.hsrv_plate->pos = 0;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -779,7 +777,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第三个位置
@@ -788,7 +786,7 @@ void StartDefaultTask(void *argument)
     // 拿第三个东西
     hawhl.hsrv_plate->pos = 180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -812,7 +810,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
     goto GoBack;
 
@@ -824,7 +822,7 @@ void StartDefaultTask(void *argument)
     // 拿第一个东西
     hawhl.hsrv_plate->pos = -180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -848,7 +846,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第二个位置
@@ -857,7 +855,7 @@ void StartDefaultTask(void *argument)
     // 拿第二个东西
     hawhl.hsrv_plate->pos = 0;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -881,7 +879,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
 
     // 去第三个位置
@@ -890,7 +888,7 @@ void StartDefaultTask(void *argument)
     // 拿第三个东西
     hawhl.hsrv_plate->pos = 180;
     hawhl.hsrv_arm3->pos = 200;
-    hawhl.hsrv_yaw->pos = 209;
+    hawhl.hsrv_yaw->pos = 207;
     hawhl.hsrv_arm1->pos = 95;
     hawhl.hsrv_arm2->pos = -190;
     osDelay(2000);
@@ -914,7 +912,7 @@ void StartDefaultTask(void *argument)
     hawhl.hsrv_paw->pos = -20;
     osDelay(300);
     hawhl.hsrv_arm3->pos = 260;
-    osDelay(500);
+    osDelay(300);
     arm_reset(&hawhl);
     goto GoBack;
 
@@ -929,6 +927,13 @@ void StartDefaultTask(void *argument)
       goto Ingredient;
     }
 
+    laser_goto_xy(&hawhl, 182.5, 212.1);
+    wait_in_position(&hawhl);
+    laser_disable_xy(&hawhl);
+    all_wheels_move_xy_delta(&hawhl, -31, 0, 20);
+    while (1) {
+      osDelay(10000);
+    }
     // all_wheels_move_xy_delta(&hawhl, -180, 0, 40);
     // osDelay(2000);
     // all_wheels_move_xy_delta(&hawhl, 183, 0, 40);
@@ -1008,7 +1013,7 @@ void arm_reset(AllWheels_HandleTypeDef *hawhl)
   osDelay(300);
   hawhl->hsrv_yaw->pos = 0;
   // hawhl->hsrv_plate->pos = 0;
-  osDelay(1000);
+  osDelay(300);
 }
 
 void arm_yaw(AllWheels_HandleTypeDef *hawhl, int16_t pos)
