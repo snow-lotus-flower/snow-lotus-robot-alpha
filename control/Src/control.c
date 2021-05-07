@@ -16,7 +16,7 @@ int *order_up_or_down;
 int pos_main[3] = {2, 1, 0}, pos_up[3] = {0}, pos_down[3] = {0};
 float lasx_ing_up = 30.3, lasx_ing_down = 30.7, lasx_ope = 28.5,
       lasx_com_down = 43.4, lasx_com_up = 43.9;
-float lasy_ing = 77.9, lasy_ope = 108.3, lasy_com = 107.5;
+float lasy_ing = 47.9, lasy_ope = 108.3, lasy_com = 107.5;
 float lasx_ing_offset = 20, lasx_ope_offset = 10;
 float lasy_offset[3] = {-15.0, 0, 15.0};
 
@@ -254,22 +254,26 @@ void StartDefaultTask(void *argument)
     // wait_in_position(&hawhl);
     int times = 0;
   QRCode:
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
     scanner_start(&hscan);
     laser_goto_xy(&hawhl, 34.0, 145.5);
     while (!hscan.new_data) {
-      osDelay(1000);
+      osDelay(200);
     }
     lcdSetCursorPosition(0, 0);
     // lcdPrintStr((uint8_t *)"Task: ", 6);
     lcdPrintStr(hscan.result, 7);
 
   Color:
-    laser_goto_xy(&hawhl, 49.0, 87.6);
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
+    laser_goto_xy(&hawhl, 49.0, lasy_ing + 9.7);
     openmv_start(&hopmv);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     hopmv.new_data = false;
-    while (!hopmv.new_data) osDelay(1000);
+    while (!hopmv.new_data) osDelay(200);
     HAL_UART_DMAStop(hopmv.huart);
 
     // lcdSetCursorPosition(0, 0);
@@ -294,6 +298,8 @@ void StartDefaultTask(void *argument)
       goto IngredientDown;
     }
   IngredientUp:
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
     // 去第一个准备抓东西的地方
     laser_goto_xy(&hawhl, lasx_ing_up + lasx_ing_offset,
                   lasy_ing + lasy_offset[ingredient_order_up[0]]);
@@ -378,12 +384,14 @@ void StartDefaultTask(void *argument)
     turn_left(hawhl.hgyro, true);
     // 转的时候把抓到的东西放在货架里
     put_in_plate(&hawhl);
-    // 转的时候复原爪子位置
-    arm_reset(&hawhl);
+    // 转的时候稍微抬起爪子
+    hawhl.hsrv_arm3->pos = 200;
     wait_in_position(&hawhl);
     goto OperatePut;
 
   IngredientDown:
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
     // 去第一个准备抓东西的地方
     laser_goto_xy(&hawhl, lasx_ing_down + lasx_ing_offset,
                   lasy_ing + lasy_offset[ingredient_order_down[0]]);
@@ -473,12 +481,14 @@ void StartDefaultTask(void *argument)
     turn_left(hawhl.hgyro, true);
     // 转的时候把抓到的东西放在货架里
     put_in_plate(&hawhl);
-    // 转的时候复原爪子位置
-    arm_reset(&hawhl);
+    // 转的时候稍微抬起爪子
+    hawhl.hsrv_arm3->pos = 200;
     wait_in_position(&hawhl);
     goto OperatePut;
 
   OperatePut:
+    pid_deadzone_big = put_pid_deadzone_big;
+    pid_deadzone_small = put_pid_deadzone_small;
     order_up_or_down = times == 0 ? order_up : order_down;
 
     // 去第一个位置
@@ -550,6 +560,8 @@ void StartDefaultTask(void *argument)
     osDelay(300);
     arm_reset(&hawhl);
   OperateTake:
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
     order_up_or_down = times == 0 ? order_up : order_down;
     // 去第一个准备位置
     laser_goto_xy(&hawhl, lasx_ope + lasx_ope_offset,
@@ -637,8 +649,8 @@ void StartDefaultTask(void *argument)
     // 路上把抓到的东西放在货架里
     arm_reset(&hawhl);
     put_in_plate(&hawhl);
-    // 路上复原爪子位置
-    arm_reset(&hawhl);
+    // 路上稍微抬起爪子
+    hawhl.hsrv_arm3->pos = 200;
     wait_in_position(&hawhl);
 
   CompletePut:
@@ -648,6 +660,8 @@ void StartDefaultTask(void *argument)
       goto CompletePutUp;
     }
   CompletePutUp:
+    pid_deadzone_big = put_pid_deadzone_big;
+    pid_deadzone_small = put_pid_deadzone_small;
     order_up_or_down = times == 0 ? order_up : order_down;
     // 去第一个位置
     laser_goto_xy(&hawhl, lasx_com_up,
@@ -720,6 +734,8 @@ void StartDefaultTask(void *argument)
     goto GoBack;
 
   CompletePutDown:
+    pid_deadzone_big = put_pid_deadzone_big;
+    pid_deadzone_small = put_pid_deadzone_small;
     order_up_or_down = times == 0 ? order_up : order_down;
     // 去第一个位置
     laser_goto_xy(&hawhl, lasx_com_down,
@@ -832,7 +848,10 @@ void StartDefaultTask(void *argument)
       goto Ingredient;
     }
 
-    laser_goto_xy(&hawhl, 182.5, 212.1);
+  GoEnd:
+    pid_deadzone_big = take_pid_deadzone_big;
+    pid_deadzone_small = take_pid_deadzone_small;
+    laser_goto_xy(&hawhl, 182.5, 213.1);
     wait_in_position(&hawhl);
     laser_disable_xy(&hawhl);
     all_wheels_move_xy_delta(&hawhl, -31, 0, 20);
