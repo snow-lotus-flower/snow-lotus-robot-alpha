@@ -1,0 +1,3 @@
+[submodule "stm32f407_drivers"]
+	path = stm32f407_drivers
+	url = git@github.com:snow-lotus-flower/stm32f407_drivers.git
